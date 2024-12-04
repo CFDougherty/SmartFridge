@@ -36,16 +36,40 @@ planning—all in one seamless system.
 
 
 ## Design Details
-Explain the high-level design decisions and architecture of your project. Include
-diagrams or code snippets if necessary.
+The AI Smart Fridge leverages a combination of IoT devices, machine learning, and user-friendly interfaces to 
+create an efficient kitchen management system. Below are the design considerations and architectural highlights.
 
-Fridge Display Wireframe:
+# Architecture Overview:
+**Hardware Integration:**
+- Camera: Captures images of fridge contents for inventory tracking using image classification.
+- Load Cell Sensors: Measure ingredient weight changes to track usage.
+- Display: Provides an interactive interface for users to view inventory, create and order shopping lists, follow recipes, and schedule alerts directly on the fridge door.
+  
+**Software Components:**
+- Fridge Display Software: Tracks inventory in the fridge, receives low-stock or expiration alerts, suggests recipes, and provides a shopping list with ordering options.
+- Mobile/Web App: Tracks inventory remotely, receives low-stock or expiration alerts, suggests recipes, and provides a shopping list with ordering options.
+- Backend: Uses a Python-based ML model for image recognition and predictive analysis. Stores user preferences, alerts, and inventory data in an SQLite3 database.
+- Machine Learning Models: Uses OpenCV for image preprocessing and PyTorch for building, training, and testing deep learning models for ingredient recognition.
+- API Integrations: Connects to delivery services like Instacart for grocery shopping automation. Connects to an extensive recipe database. 
 
-Mobile Side Wireframe:
+# User Interface:
+**Key Features:**
+- Real-time inventory tracking
+- Automatic shopping list creation
+- Recipe suggestions based on ingredients in stock
+- Alerts for expiring items, low stock
+- Calendar feature for scheduling and reminders
+
+Figma UI Wireframe:
+https://www.figma.com/design/wWFdGDr48QXB2gG65yrl4t/Fridge-Display-Wireframe?node-id=0-1&t=N2K9083Wl4GnrN22-1
+
+Figma Prototype Link:
+https://www.figma.com/proto/wWFdGDr48QXB2gG65yrl4t/Fridge-Display-Wireframe?node-id=0-1&t=N2K9083Wl4GnrN22-1
+
 
 ### Example Code:
 
-#Code snippet or example to showcase design principles
+#Add code snippet or example to showcase design principles
 
 
 ## Installation
@@ -55,9 +79,9 @@ Mobile Side Wireframe:
 - Camera
 - Display
 - Load Cell
-- Python Libraries: OpenCV, TensorFlow, SQLite
+- Python Libraries: OpenCV, PyTorch, SQLite3
 
-#Installation steps
+# Installation steps
 $ git clone https://github.com/SnowDrifterr/CS-Capstone.git
 $ cd CS-Capstone
 $ npm install #or any other relevant command
