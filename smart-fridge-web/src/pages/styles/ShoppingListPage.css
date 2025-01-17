@@ -1,3 +1,4 @@
+/* General Styles */
 .shopping-list-container {
   padding: 20px;
   font-family: Arial, sans-serif;
@@ -12,15 +13,28 @@
 .shopping-list-table {
   width: 100%;
   border-collapse: collapse;
+  margin-bottom: 20px;
 }
 
 .shopping-list-table th,
 .shopping-list-table td {
   padding: 10px;
   text-align: center;
+  border: 1px solid #ddd;
 }
 
-.shopping-list-table input[type="text"] {
+.item-name-cell,
+.item-quantity-cell,
+.item-delete-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.item-checkbox {
+  margin-right: 5px;
+}
+
+.item-quantity-input {
   width: 80%;
   padding: 5px;
 }
@@ -39,8 +53,8 @@
 }
 
 .add-item-button {
-  display: block;   
-  margin: 10px auto;  
+  display: block;
+  margin: 10px auto;
   padding: 8px 15px;
   background-color: #8c00ff;
   color: white;
@@ -53,31 +67,59 @@
   background-color: #5a00b3;
 }
 
-.bottom-controls {
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  text-align: center;
+}
+
+.modal-content input {
+  width: calc(100% - 20px);
+  margin: 10px 0;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
   margin-top: 20px;
 }
 
-.auto-add-toggle {
-  display: flex;
-  align-items: center;
-}
-
-.auto-add-toggle input {
-  margin-left: 10px;
-}
-
-.place-order-button {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 20px;
+.modal-buttons button {
+  padding: 8px 15px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.place-order-button:hover {
+.modal-buttons button:first-child {
+  background-color: gray;
+  color: white;
+}
+
+.modal-buttons button:last-child {
+  background-color: #28a745;
+  color: white;
+}
+
+.modal-buttons button:last-child:hover {
   background-color: #218838;
 }

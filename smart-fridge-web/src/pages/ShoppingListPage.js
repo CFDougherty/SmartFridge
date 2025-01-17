@@ -6,8 +6,8 @@ const ShoppingListPage = () => {
     { name: "Milk", quantity: "", checked: false },
     { name: "Eggs", quantity: "", checked: false },
   ]);
-  const [newItem, setNewItem] = useState("");
-  const [autoAdd, setAutoAdd] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [newItem, setNewItem] = useState({ name: "", quantity: "" });
 
   // Handle checkbox toggle
   const toggleChecked = (index) => {
@@ -27,14 +27,16 @@ const ShoppingListPage = () => {
 
   // Handle new item input change
   const handleNewItemChange = (e) => {
-    setNewItem(e.target.value);
+    const { name, value } = e.target;
+    setNewItem((prev) => ({ ...prev, [name]: value }));
   };
 
   // Add new item
   const addItem = () => {
-    if (newItem.trim()) {
-      setItems([...items, { name: newItem, quantity: "", checked: false }]);
-      setNewItem("");
+    if (newItem.name.trim()) {
+      setItems([...items, { ...newItem, checked: false }]);
+      setNewItem({ name: "", quantity: "" });
+      setShowModal(false);
     }
   };
 
@@ -57,53 +59,63 @@ const ShoppingListPage = () => {
         <tbody>
           {items.map((item, index) => (
             <tr key={index}>
-              <td>
+              <td className="item-name-cell">
                 <input
                   type="checkbox"
+                  className="item-checkbox"
                   checked={item.checked}
                   onChange={() => toggleChecked(index)}
                 />
                 {item.name}
               </td>
-              <td>
+              <td className="item-quantity-cell">
                 <input
                   type="text"
+                  className="item-quantity-input"
                   value={item.quantity}
                   onChange={(e) => handleQuantityChange(index, e.target.value)}
                   placeholder="Enter quantity"
                 />
               </td>
-              <td>
+              <td className="item-delete-cell">
                 <button className="delete-button" onClick={() => removeItem(index)}>x</button>
               </td>
             </tr>
           ))}
-          <tr>
-            <td colSpan="3">
-              <input
-                type="text"
-                value={newItem}
-                onChange={handleNewItemChange}
-                placeholder="New item name"
-              />
-              <button className="add-item-button" onClick={addItem}>+ Add Item</button>
-            </td>
-          </tr>
         </tbody>
       </table>
+      <button className="add-item-button" onClick={() => setShowModal(true)}>+ Add Item</button>
 
-      <div className="bottom-controls">
-        <label className="auto-add-toggle">
-          Auto-Add
-          <input
-            type="checkbox"
-            checked={autoAdd}
-            onChange={() => setAutoAdd(!autoAdd)}
-          />
-          <span className="slider"></span>
-        </label>
-        <button className="place-order-button">Place Order</button>
-      </div>
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Add New Item</h2>
+            <label>
+              Name:
+              <input
+                type="text"
+                name="name"
+                value={newItem.name}
+                onChange={handleNewItemChange}
+              />
+            </label>
+            <label>
+              Quantity:
+              <input
+                type="text"
+                name="quantity"
+                value={newItem.quantity}
+                onChange={handleNewItemChange}
+                placeholder="Optional"
+              />
+            </label>
+            <div className="modal-buttons">
+              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={addItem}>Add</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

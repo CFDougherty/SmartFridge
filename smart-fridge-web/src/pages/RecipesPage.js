@@ -1,24 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import './styles/RecipesPage.css';
 
 const RecipesPage = () => {
-  const availableRecipes = [
+  const [availableRecipes, setAvailableRecipes] = useState([
     { name: "Recipe 1", cookTime: "30 mins", ingredients: "Chicken, Spices" },
     { name: "Recipe 2", cookTime: "20 mins", ingredients: "Pasta, Tomato Sauce" },
     { name: "Recipe 3", cookTime: "40 mins", ingredients: "Beef, Potatoes" },
-  ];
+  ]);
+  const [showModal, setShowModal] = useState(false);
+  const [newRecipe, setNewRecipe] = useState({ name: "", cookTime: "", ingredients: "" });
 
-  const expiresSoonRecipes = [
-    { name: "Recipe 1", cookTime: "25 mins", ingredients: "Fish, Lemon" },
-    { name: "Recipe 2", cookTime: "15 mins", ingredients: "Rice, Beans" },
-    { name: "Recipe 3", cookTime: "35 mins", ingredients: "Pork, Broccoli" },
-  ];
+  // Handle input changes in modal
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewRecipe((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const savedForLaterRecipes = [
-    { name: "Recipe 1", cookTime: "10 mins", ingredients: "Bread, Cheese" },
-    { name: "Recipe 2", cookTime: "50 mins", ingredients: "Turkey, Vegetables" },
-    { name: "Recipe 3", cookTime: "45 mins", ingredients: "Soup, Noodles" },
-  ];
+  // Add recipe to availableRecipes
+  const addRecipe = () => {
+    if (newRecipe.name && newRecipe.cookTime && newRecipe.ingredients) {
+      setAvailableRecipes([...availableRecipes, newRecipe]);
+      setNewRecipe({ name: "", cookTime: "", ingredients: "" });
+      setShowModal(false);
+    }
+  };
 
   return (
     <div className="recipes-container">
@@ -27,7 +32,7 @@ const RecipesPage = () => {
       {/* Search Bar and Add Button */}
       <div className="recipes-controls">
         <input type="text" className="search-bar" placeholder="Search recipes..." />
-        <button className="add-recipe-button">+ Add Recipe</button>
+        <button className="add-recipe-button" onClick={() => setShowModal(true)}>+ Add Recipe</button>
       </div>
 
       {/* Available Recipes */}
@@ -42,29 +47,46 @@ const RecipesPage = () => {
         ))}
       </div>
 
-      {/* Expires Soon Recipes */}
-      <h2 className="recipes-subheader">Expires Soon</h2>
-      <div className="recipes-grid">
-        {expiresSoonRecipes.map((recipe, index) => (
-          <div key={index} className="recipe-card">
-            <h3>{recipe.name}</h3>
-            <p>Cook Time: {recipe.cookTime}</p>
-            <p>Ingredients: {recipe.ingredients}</p>
+      {/* Modal for Adding Recipe */}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Add Recipe</h2>
+            <label>
+              Name:
+              <input
+                type="text"
+                name="name"
+                value={newRecipe.name}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Cook Time:
+              <input
+                type="text"
+                name="cookTime"
+                value={newRecipe.cookTime}
+                onChange={handleInputChange}
+                placeholder="e.g., 30 mins"
+              />
+            </label>
+            <label>
+              Ingredients:
+              <textarea
+                name="ingredients"
+                value={newRecipe.ingredients}
+                onChange={handleInputChange}
+                placeholder="e.g., Chicken, Spices"
+              />
+            </label>
+            <div className="modal-buttons">
+              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={addRecipe}>Add</button>
+            </div>
           </div>
-        ))}
-      </div>
-
-      {/* Saved for Later Recipes */}
-      <h2 className="recipes-subheader">Saved for Later</h2>
-      <div className="recipes-grid">
-        {savedForLaterRecipes.map((recipe, index) => (
-          <div key={index} className="recipe-card">
-            <h3>{recipe.name}</h3>
-            <p>Cook Time: {recipe.cookTime}</p>
-            <p>Ingredients: {recipe.ingredients}</p>
-          </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
