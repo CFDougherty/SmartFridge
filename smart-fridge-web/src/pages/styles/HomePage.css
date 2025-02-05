@@ -1,0 +1,57 @@
+.home-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.home-header {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.card li {
+  margin: 5px 0;
+}
+
+.progress-container {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.progress-bar {
+  background-color: #ccc;
+  border-radius: 10px;
+  width: 100%;
+  height: 20px;
+  margin-top: 5px;
+}
+
+.progress-fill {
+  background-color: #28a745;
+  height: 100%;
+  border-radius: 10px;
+}

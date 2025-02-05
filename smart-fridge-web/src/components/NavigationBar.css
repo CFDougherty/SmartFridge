@@ -1,0 +1,29 @@
+.navigation-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+    padding: 10px 0;
+  }
+  
+  .nav-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .nav-button:focus {
+    outline: none;
+  }
+
+  .nav-icon {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 5px;
+  }
+  
