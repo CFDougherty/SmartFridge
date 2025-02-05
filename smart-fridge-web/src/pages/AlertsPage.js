@@ -26,8 +26,18 @@ const AlertsPage = () => {
 
   // Save alerts to local storage whenever they change
   useEffect(() => {
-    localStorage.setItem("alerts", JSON.stringify(alerts));
-  }, [alerts]);
+    const fetchAlerts = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/alerts');
+            const data = await response.json();
+            setAlerts(data);
+        } catch (error) {
+            console.error('Error fetching alerts:', error);
+        }
+    };
+    fetchAlerts();
+}, []);
+
 
   const toggleChecked = (id) => {
     const updatedAlerts = alerts.map((alert) =>
@@ -82,19 +92,27 @@ const AlertsPage = () => {
       addAlert(); // Add new alert
     }
   };
-
-  const addAlert = () => {
+const addAlert = async () => {
     const newAlert = {
-        id: Date.now(),
         title: formData.title,
         description: formData.description,
         date: formData.date.toDateString(),
         time: formData.time,
-        checked: false,
     };
-    setAlerts([...alerts, newAlert]);
-    closeModal();
-  };
+    try {
+        const response = await fetch('http://localhost:5000/alerts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newAlert),
+        });
+        const addedAlert = await response.json();
+        setAlerts([...alerts, { ...newAlert, id: addedAlert.id, checked: false }]);
+        closeModal();
+    } catch (error) {
+        console.error('Error adding alert:', error);
+    }
+};
+
 
   const openModalWithData = (alert) => {
     setFormData({

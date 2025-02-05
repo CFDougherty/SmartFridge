@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import './styles/RecipesPage.css';
 
 const RecipesPage = () => {
-  const [availableRecipes, setAvailableRecipes] = useState([
-    { name: "Recipe 1", cookTime: "30 mins", ingredients: "Chicken, Spices" },
-    { name: "Recipe 2", cookTime: "20 mins", ingredients: "Pasta, Tomato Sauce" },
-    { name: "Recipe 3", cookTime: "40 mins", ingredients: "Beef, Potatoes" },
-  ]);
+  const [availableRecipes, setAvailableRecipes] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [newRecipe, setNewRecipe] = useState({ name: "", cookTime: "", ingredients: "" });
+
+  // Fetch recipes from the backend
+  useEffect(() => {
+    axios.get("http://localhost:5000/recipes")
+      .then((response) => setAvailableRecipes(response.data))
+      .catch((error) => console.error("Error fetching recipes:", error));
+  }, []);
 
   // Handle input changes in modal
   const handleInputChange = (e) => {
@@ -16,12 +20,20 @@ const RecipesPage = () => {
     setNewRecipe((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Add recipe to availableRecipes
+  // Add new recipe
   const addRecipe = () => {
     if (newRecipe.name && newRecipe.cookTime && newRecipe.ingredients) {
-      setAvailableRecipes([...availableRecipes, newRecipe]);
-      setNewRecipe({ name: "", cookTime: "", ingredients: "" });
-      setShowModal(false);
+      axios.post("http://localhost:5000/recipes", {
+        name: newRecipe.name,
+        cookTime: newRecipe.cookTime,
+        ingredients: newRecipe.ingredients.split(",") // Convert string to array
+      })
+      .then((response) => {
+        setAvailableRecipes([...availableRecipes, response.data]);
+        setNewRecipe({ name: "", cookTime: "", ingredients: "" });
+        setShowModal(false);
+      })
+      .catch((error) => console.error("Error adding recipe:", error));
     }
   };
 
@@ -54,31 +66,15 @@ const RecipesPage = () => {
             <h2>Add Recipe</h2>
             <label>
               Name:
-              <input
-                type="text"
-                name="name"
-                value={newRecipe.name}
-                onChange={handleInputChange}
-              />
+              <input type="text" name="name" value={newRecipe.name} onChange={handleInputChange} />
             </label>
             <label>
               Cook Time:
-              <input
-                type="text"
-                name="cookTime"
-                value={newRecipe.cookTime}
-                onChange={handleInputChange}
-                placeholder="e.g., 30 mins"
-              />
+              <input type="text" name="cookTime" value={newRecipe.cookTime} onChange={handleInputChange} placeholder="e.g., 30 mins" />
             </label>
             <label>
-              Ingredients:
-              <textarea
-                name="ingredients"
-                value={newRecipe.ingredients}
-                onChange={handleInputChange}
-                placeholder="e.g., Chicken, Spices"
-              />
+              Ingredients (comma separated):
+              <textarea name="ingredients" value={newRecipe.ingredients} onChange={handleInputChange} placeholder="e.g., Chicken, Spices" />
             </label>
             <div className="modal-buttons">
               <button onClick={() => setShowModal(false)}>Cancel</button>
