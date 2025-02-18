@@ -1,25 +1,65 @@
+
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
-const bodyParser = require("body-parser");
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json()); 
 
-// Connect to SQLite database
-const db = new sqlite3.Database("./recipes.db", sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
-  if (err) return console.error(err.message);
-  console.log("Connected to the database.");
+const db = new sqlite3.Database("./smart-fridge.db", (err) => {
+  if (err) {
+    console.error("Database connection error:", err.message);
+    process.exit(1);
+  }
+  console.log("Connected to the smart-fridge.db database.");
 });
 
-// Create recipes table
-db.run(`CREATE TABLE IF NOT EXISTS recipes (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT,
-  cookTime TEXT,
-  ingredients TEXT
-)`);
+db.run(
+  `CREATE TABLE IF NOT EXISTS recipes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    cookTime TEXT,
+    ingredients TEXT
+  )`,
+  (err) => {
+    if (err) {
+      console.error("Error creating recipes table:", err.message);
+    }
+  }
+);
+
+db.run(
+  `CREATE TABLE IF NOT EXISTS alerts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    description TEXT,
+    date TEXT,
+    time TEXT,
+    checked INTEGER DEFAULT 0
+  )`,
+  (err) => {
+    if (err) {
+      console.error("Error creating alerts table:", err.message);
+    }
+  }
+);
+
+db.run(
+  `CREATE TABLE IF NOT EXISTS shopping_list (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    quantity TEXT,
+    checked INTEGER DEFAULT 0
+  )`,
+  (err) => {
+    if (err) {
+      console.error("Error creating shopping_list table:", err.message);
+    }
+  }
+);
+
+
 
 // Get all recipes
 app.get("/recipes", (req, res) => {
@@ -29,10 +69,14 @@ app.get("/recipes", (req, res) => {
   });
 });
 
-// Add new recipe
+// Add a new recipe
 app.post("/recipes", (req, res) => {
   const { name, cookTime, ingredients } = req.body;
-  db.run(`INSERT INTO recipes (name, cookTime, ingredients) VALUES (?, ?, ?)`,
+  if (!name || !cookTime || !ingredients) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  db.run(
+    `INSERT INTO recipes (name, cookTime, ingredients) VALUES (?, ?, ?)`,
     [name, cookTime, ingredients.join(", ")],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
@@ -41,6 +85,139 @@ app.post("/recipes", (req, res) => {
   );
 });
 
-// Start server
-const PORT = 5000;
+// Update a recipe
+app.put("/recipes/:id", (req, res) => {
+  const { id } = req.params;
+  const { name, cookTime, ingredients } = req.body;
+  db.run(
+    `UPDATE recipes SET name = ?, cookTime = ?, ingredients = ? WHERE id = ?`,
+    [name, cookTime, ingredients.join(", "), id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: Number(id), name, cookTime, ingredients });
+    }
+  );
+});
+
+// Delete a recipe
+app.delete("/recipes/:id", (req, res) => {
+  const { id } = req.params;
+  db.run(`DELETE FROM recipes WHERE id = ?`, [id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
+
+
+
+// Get all alerts
+app.get("/alerts", (req, res) => {
+  db.all("SELECT * FROM alerts", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    // Convert checked from 0/1 to boolean
+    const alerts = rows.map((row) => ({
+      ...row,
+      checked: row.checked === 1,
+    }));
+    res.json(alerts);
+  });
+});
+
+// Add a new alert
+app.post("/alerts", (req, res) => {
+  const { title, description, date, time } = req.body;
+  if (!title || !date || !time) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  db.run(
+    `INSERT INTO alerts (title, description, date, time) VALUES (?,?,?,?)`,
+    [title, description, date, time],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.json({ id: this.lastID, title, description, date, time, checked: false });
+    }
+  );
+});
+
+// Update an alert
+app.put("/alerts/:id", (req, res) => {
+  const { id } = req.params;
+  const { title, description, date, time, checked } = req.body;
+  const checkedValue = checked ? 1 : 0;
+  db.run(
+    `UPDATE alerts SET title = ?, description = ?, date = ?, time = ?, checked = ? WHERE id = ?`,
+    [title, description, date, time, checkedValue, id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: Number(id), title, description, date, time, checked });
+    }
+  );
+});
+
+// Delete an alert
+app.delete("/alerts/:id", (req, res) => {
+  const { id } = req.params;
+  db.run(`DELETE FROM alerts WHERE id = ?`, [id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
+
+
+// Get all shopping-list items
+app.get("/shopping-list", (req, res) => {
+  db.all("SELECT * FROM shopping_list", [], (err, rows) => {
+
+    const items = rows.map((row) => ({
+      ...row,
+      checked: row.checked === 1,
+    }));
+    res.json(items);
+  });
+});
+
+// Add a new shopping-list item
+app.post("/shopping-list", (req, res) => {
+  const { name, quantity } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: "Item name is required" });
+  }
+  db.run(
+    `INSERT INTO shopping_list (name, quantity) VALUES (?, ?)`,
+    [name, quantity || ""],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      // by default checked = 0
+      res.json({ id: this.lastID, name, quantity: quantity || "", checked: false });
+    }
+  );
+});
+
+// Update shopping-list item
+app.put("/shopping-list/:id", (req, res) => {
+  const { id } = req.params;
+  const { name, quantity, checked } = req.body;
+  const checkedValue = checked ? 1 : 0;
+  db.run(
+    `UPDATE shopping_list SET name = ?, quantity = ?, checked = ? WHERE id = ?`,
+    [name, quantity, checkedValue, id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: Number(id), name, quantity, checked });
+    }
+  );
+});
+
+// Delete shopping-list item
+app.delete("/shopping-list/:id", (req, res) => {
+  const { id } = req.params;
+  db.run(`DELETE FROM shopping_list WHERE id = ?`, [id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
+
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

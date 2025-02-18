@@ -1,102 +1,113 @@
-import React, { useState } from "react";
-import './styles/ShoppingListPage.css';
+
+import React, { useState, useContext } from "react";
+import { ShoppingListContext } from "../context/ShoppingListContext";
+import "./styles/ShoppingListPage.css";
 
 const ShoppingListPage = () => {
-  const [items, setItems] = useState([
-    { name: "Milk", quantity: "", checked: false },
-    { name: "Eggs", quantity: "", checked: false },
-  ]);
+  const { shoppingListItems, addItem, updateItem, removeItem } =
+    useContext(ShoppingListContext);
+
   const [showModal, setShowModal] = useState(false);
-  const [newItem, setNewItem] = useState({ name: "", quantity: "" });
+  const [editingItemId, setEditingItemId] = useState(null); // track if editing
+  const [formData, setFormData] = useState({ name: "", quantity: "" });
 
-  // Handle checkbox toggle
-  const toggleChecked = (index) => {
-    const updatedItems = items.map((item, i) =>
-      i === index ? { ...item, checked: !item.checked } : item
-    );
-    setItems(updatedItems);
+  const toggleChecked = (item) => {
+    const updated = { ...item, checked: !item.checked };
+    updateItem(item.id, updated);
   };
 
-  // Handle quantity change
-  const handleQuantityChange = (index, value) => {
-    const updatedItems = items.map((item, i) =>
-      i === index ? { ...item, quantity: value } : item
-    );
-    setItems(updatedItems);
+  const handleAddNewClick = () => {
+    setEditingItemId(null);
+    setFormData({ name: "", quantity: "" });
+    setShowModal(true);
   };
 
-  // Handle new item input change
-  const handleNewItemChange = (e) => {
-    const { name, value } = e.target;
-    setNewItem((prev) => ({ ...prev, [name]: value }));
+  const handleEditClick = (item) => {
+    setEditingItemId(item.id);
+    setFormData({ name: item.name, quantity: item.quantity });
+    setShowModal(true);
   };
-
-  // Add new item
-  const addItem = () => {
-    if (newItem.name.trim()) {
-      setItems([...items, { ...newItem, checked: false }]);
-      setNewItem({ name: "", quantity: "" });
-      setShowModal(false);
+  const handleSubmit = () => {
+    if (!formData.name.trim()) {
+      return; 
     }
-  };
-
-  // Remove an item
-  const removeItem = (index) => {
-    setItems(items.filter((_, i) => i !== index));
+    if (editingItemId) {
+      updateItem(editingItemId, {
+        ...formData,
+        checked: false, 
+      });
+    } else {
+      // add new item
+      addItem({ ...formData });
+    }
+    setShowModal(false);
   };
 
   return (
     <div className="shopping-list-container">
       <h1 className="shopping-list-header">Shopping List</h1>
+
       <table className="shopping-list-table">
         <thead>
           <tr>
             <th>Item</th>
             <th>Quantity</th>
+            <th>Checked</th>
+            <th>Edit</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          {items.map((item, index) => (
-            <tr key={index}>
-              <td className="item-name-cell">
+          {shoppingListItems.map((item) => (
+            <tr key={item.id}>
+              <td className="item-name-cell">{item.name}</td>
+              <td className="item-quantity-cell">{item.quantity}</td>
+              <td>
                 <input
                   type="checkbox"
-                  className="item-checkbox"
                   checked={item.checked}
-                  onChange={() => toggleChecked(index)}
+                  onChange={() => toggleChecked(item)}
                 />
-                {item.name}
               </td>
-              <td className="item-quantity-cell">
-                <input
-                  type="text"
-                  className="item-quantity-input"
-                  value={item.quantity}
-                  onChange={(e) => handleQuantityChange(index, e.target.value)}
-                  placeholder="Enter quantity"
-                />
+              <td>
+                <button
+                  onClick={() => handleEditClick(item)}
+                  className="edit-button"
+                >
+                  Edit
+                </button>
               </td>
               <td className="item-delete-cell">
-                <button className="delete-button" onClick={() => removeItem(index)}>x</button>
+                <button
+                  className="delete-button"
+                  onClick={() => removeItem(item.id)}
+                >
+                  x
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <button className="add-item-button" onClick={() => setShowModal(true)}>+ Add Item</button>
 
+      <button className="add-item-button" onClick={handleAddNewClick}>
+        + Add Item
+      </button>
+
+      {/* Modal for Add / Edit */}
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h2>Add New Item</h2>
+            <h2>{editingItemId ? "Edit Item" : "Add New Item"}</h2>
             <label>
               Name:
               <input
                 type="text"
                 name="name"
-                value={newItem.name}
-                onChange={handleNewItemChange}
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
               />
             </label>
             <label>
@@ -104,14 +115,18 @@ const ShoppingListPage = () => {
               <input
                 type="text"
                 name="quantity"
-                value={newItem.quantity}
-                onChange={handleNewItemChange}
-                placeholder="Optional"
+                value={formData.quantity}
+                onChange={(e) =>
+                  setFormData({ ...formData, quantity: e.target.value })
+                }
               />
             </label>
+
             <div className="modal-buttons">
               <button onClick={() => setShowModal(false)}>Cancel</button>
-              <button onClick={addItem}>Add</button>
+              <button onClick={handleSubmit}>
+                {editingItemId ? "Save" : "Add"}
+              </button>
             </div>
           </div>
         </div>

@@ -1,15 +1,29 @@
+
 import React, { useState } from "react";
-import './styles/HomePage.css';
+import { useContext } from "react";
+import { ShoppingListContext } from "../context/ShoppingListContext";
+import { AlertsContext } from "../context/AlertsContext";
+import { RecipesContext } from "../context/RecipesContext";
+import "./styles/HomePage.css";
 
 const HomePage = () => {
-  const [items, setItems] = useState([
+  const [items] = useState([
     { name: "Milk", quantity: "1L", expiry: "2 days" },
     { name: "Eggs", quantity: "12", expiry: "5 days" },
   ]);
 
-  const [shoppingList] = useState(["Milk", "Eggs", "Carrots", "Pickles", "Bacon", "Hot Sauce", "Cheese"]);
-  const [alerts] = useState(["Milk is low (1L)", "Milk is expiring (2 days)", "Eggs are expiring (5 days)", "Parent-Teacher Conference", "Soccer Practice"]);
-  const recipes = { suggestion: "Cake", cookTime: "45 mins", ingredients: ["Milk", "Eggs", "Butter", "Flour", "Sugar"] };
+  const { shoppingListItems } = useContext(ShoppingListContext);
+
+  const { alerts } = useContext(AlertsContext);
+
+  const { recipes } = useContext(RecipesContext);
+
+  const firstRecipe = recipes[0] || {
+    name: "No recipes yet",
+    cookTime: "",
+    ingredients: [],
+  };
+  const upcomingAlerts = alerts.slice(0, 3);
 
   return (
     <div className="home-container">
@@ -32,9 +46,10 @@ const HomePage = () => {
         <div className="card">
           <h2>Shopping List</h2>
           <ul>
-            {shoppingList.map((item, index) => (
-              <li key={index}>
-                <input type="checkbox" /> {item}
+            {shoppingListItems.map((item) => (
+              <li key={item.id}>
+                {item.checked ? <del>{item.name}</del> : item.name}
+                {item.quantity && ` (${item.quantity})`}
               </li>
             ))}
           </ul>
@@ -43,13 +58,13 @@ const HomePage = () => {
         {/* Recipes Section */}
         <div className="card">
           <h2>Recipes</h2>
-          <p>Suggestion: {recipes.suggestion}</p>
-          <p>Cook Time: {recipes.cookTime}</p>
+          <p>Sample: {firstRecipe.name}</p>
+          <p>Cook Time: {firstRecipe.cookTime}</p>
           <p>Ingredients:</p>
           <ul>
-            {recipes.ingredients.map((ingredient, index) => (
-              <li key={index}>{ingredient}</li>
-            ))}
+            {Array.isArray(firstRecipe.ingredients)
+              ? firstRecipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)
+              : null}
           </ul>
         </div>
 
@@ -57,9 +72,9 @@ const HomePage = () => {
         <div className="card">
           <h2>Alerts</h2>
           <ul>
-            {alerts.map((alert, index) => (
-              <li key={index}>
-                <input type="checkbox" /> {alert}
+            {upcomingAlerts.map((alert) => (
+              <li key={alert.id}>
+                {alert.checked ? <del>{alert.title}</del> : alert.title} ({alert.time})
               </li>
             ))}
           </ul>

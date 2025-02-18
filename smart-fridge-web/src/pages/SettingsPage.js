@@ -1,5 +1,6 @@
+
 import React from "react";
-import './styles/SettingsPage.css';
+import "./styles/SettingsPage.css";
 
 const SettingsPage = () => {
   const settingsOptions = [
@@ -19,13 +20,13 @@ const SettingsPage = () => {
         {settingsOptions.map((option, index) => (
           <div key={index} className="settings-option">
             <span>{option}</span>
-            <span className="arrow">›</span> {/* Arrow icon */}
+            <span className="arrow">›</span>
           </div>
         ))}
       </div>
       <button className="connect-button">
         <span>Connect to Mobile App</span>
-        <span className="qr-icon">📱</span> {/* QR Code Icon Placeholder */}
+        <span className="qr-icon">📱</span>
       </button>
     </div>
   );

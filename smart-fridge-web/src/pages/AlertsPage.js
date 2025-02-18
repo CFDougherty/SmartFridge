@@ -1,75 +1,54 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useContext } from "react";
+import { AlertsContext } from "../context/AlertsContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import TimePicker from "react-time-picker";
-import './styles/AlertsPage.css';
+import "./styles/AlertsPage.css";
 
 const AlertsPage = () => {
-  const [alerts, setAlerts] = useState([]);
+  const { alerts, addAlert, updateAlert, removeAlert } = useContext(AlertsContext);
+
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [showModal, setShowModal] = useState(false); // For modal visibility
+  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
+    id: null,
     title: "",
     description: "",
     date: new Date(),
     time: "12:00",
+    checked: false,
   });
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize today's date
-
-  // Load alerts from local storage on mount
-  useEffect(() => {
-    const savedAlerts = JSON.parse(localStorage.getItem("alerts")) || [];
-    setAlerts(savedAlerts);
-  }, []);
-
-  // Save alerts to local storage whenever they change
-  useEffect(() => {
-    const fetchAlerts = async () => {
-        try {
-            const response = await fetch('http://localhost:5000/alerts');
-            const data = await response.json();
-            setAlerts(data);
-        } catch (error) {
-            console.error('Error fetching alerts:', error);
-        }
-    };
-    fetchAlerts();
-}, []);
-
-
-  const toggleChecked = (id) => {
-    const updatedAlerts = alerts.map((alert) =>
-      alert.id === id ? { ...alert, checked: !alert.checked } : alert
-    );
-    setAlerts(updatedAlerts);
+  const toggleChecked = (alert) => {
+    updateAlert(alert.id, { ...alert, checked: !alert.checked });
   };
 
   const handleDateChange = (days) => {
-    setCurrentDate((prevDate) => {
-      const newDate = new Date(prevDate);
-      newDate.setDate(prevDate.getDate() + days);
-      return newDate;
-    });
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + days);
+    setCurrentDate(newDate);
   };
 
-  const formattedDate = currentDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
-
-  const isDateInThePast = currentDate.getTime() < today.getTime();
-
-  const openModal = () => {
-    setFormData((prev) => ({ ...prev, date: currentDate }));
+  const openModalForNew = () => {
+    setFormData({
+      id: null,
+      title: "",
+      description: "",
+      date: new Date(),
+      time: "12:00",
+      checked: false,
+    });
     setShowModal(true);
   };
 
-  const closeModal = () => {
+  const openModalForEdit = (alert) => {
+    setFormData({ ...alert, date: new Date(alert.date) });
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
     setShowModal(false);
-    setFormData({ title: "", description: "", date: new Date(), time: "12:00" });
   };
 
   const handleInputChange = (e) => {
@@ -85,110 +64,80 @@ const AlertsPage = () => {
     setFormData((prev) => ({ ...prev, time }));
   };
 
-  const addOrUpdateAlert = () => {
+  const handleSave = () => {
+    if (!formData.title.trim()) return;
     if (formData.id) {
-      updateAlert(); // Edit existing alert
+      const updated = {
+        ...formData,
+        date: formData.date.toDateString(),
+      };
+      updateAlert(formData.id, updated);
     } else {
-      addAlert(); // Add new alert
-    }
-  };
-const addAlert = async () => {
-    const newAlert = {
+      addAlert({
         title: formData.title,
         description: formData.description,
         date: formData.date.toDateString(),
         time: formData.time,
-    };
-    try {
-        const response = await fetch('http://localhost:5000/alerts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newAlert),
-        });
-        const addedAlert = await response.json();
-        setAlerts([...alerts, { ...newAlert, id: addedAlert.id, checked: false }]);
-        closeModal();
-    } catch (error) {
-        console.error('Error adding alert:', error);
+      });
     }
-};
-
-
-  const openModalWithData = (alert) => {
-    setFormData({
-        id: alert.id,
-        title: alert.title,
-        description: alert.description,
-        date: new Date(alert.date),
-        time: alert.time,
-    });
-    setShowModal(true);
+    setShowModal(false);
   };
-  
-  const updateAlert = () => {
-    const updatedAlerts = alerts.map((alert) =>
-      alert.id === formData.id
-        ? {
-            ...alert,
-            title: formData.title,
-            description: formData.description,
-            date: formData.date.toDateString(),
-            time: formData.time,
-          }
-        : alert
-    );
-    setAlerts(updatedAlerts);
-    closeModal();
-  };
-  
+
+  const filteredAlerts = alerts.filter(
+    (alert) => alert.date === currentDate.toDateString()
+  );
 
   return (
     <div className="alerts-page">
       <h1 className="alerts-title">Alerts</h1>
       <div className="date-navigation">
         <button onClick={() => handleDateChange(-1)}>&lt;</button>
-        <p>{formattedDate}</p>
+        <p>{currentDate.toDateString()}</p>
         <button onClick={() => handleDateChange(1)}>&gt;</button>
       </div>
       <ul className="alerts-list">
-        {alerts
-          .filter((alert) => alert.date === currentDate.toDateString())
-          .map((alert) => (
-            <li key={alert.id} className="alert-item" onClick={() => openModalWithData(alert)}>
-              <input
-                type="checkbox"
-                checked={alert.checked}
-                onChange={() => toggleChecked(alert.id)}
-              />
-              <span className="alert-name">
-                {alert.title} ({alert.time})
-              </span>
-              <button
-                className="delete-button"
-                onClick={(e) => {
-                    e.stopPropagation(); 
-                    setAlerts(alerts.filter((a) => a.id !== alert.id));
-                  }}>
-                x
-              </button>
-            </li>
-          ))}
+        {filteredAlerts.map((alert) => (
+          <li
+            key={alert.id}
+            className="alert-item"
+            onClick={() => openModalForEdit(alert)}
+          >
+            <input
+              type="checkbox"
+              checked={alert.checked}
+              onChange={(e) => {
+                e.stopPropagation();
+                toggleChecked(alert);
+              }}
+            />
+            <span className="alert-name">
+              {alert.title} ({alert.time})
+            </span>
+            <button
+              className="delete-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeAlert(alert.id);
+              }}
+            >
+              x
+            </button>
+          </li>
+        ))}
       </ul>
-      {!isDateInThePast && (
-        <button className="add-button" onClick={openModal}>
-          + Schedule Alert
-        </button>
-      )}
+      <button className="add-button" onClick={openModalForNew}>
+        + Schedule Alert
+      </button>
 
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h2>Schedule an Alert</h2>
+            <h2>{formData.id ? "Edit Alert" : "New Alert"}</h2>
             <label>
               Title:
               <input
-                type="text"
                 name="title"
+                type="text"
                 value={formData.title}
                 onChange={handleInputChange}
               />
@@ -203,27 +152,23 @@ const addAlert = async () => {
             </label>
             <label>
               Date:
-                <DatePicker
-                    selected={formData.date}
-                    onChange={handleDateSelect}
-                /> 
+              <DatePicker selected={formData.date} onChange={handleDateSelect} />
             </label>
             <label>
               Time:
-                <TimePicker
-                    className="custom-time-picker"
-                    value={formData.time}
-                    onChange={handleTimeSelect}
-                    format="h:mm a"
-                    clearIcon={null}
-                    clockIcon={null}
-                /> 
-
-
+              <TimePicker
+                value={formData.time}
+                onChange={handleTimeSelect}
+                format="h:mm a"
+                clearIcon={null}
+                clockIcon={null}
+              />
             </label>
             <div className="modal-buttons">
-              <button onClick={closeModal}>Cancel</button>
-              <button onClick={addOrUpdateAlert}>{formData.id ? "Save" : "Add"}</button>
+              <button onClick={handleCloseModal}>Cancel</button>
+              <button onClick={handleSave}>
+                {formData.id ? "Save" : "Add"}
+              </button>
             </div>
           </div>
         </div>
