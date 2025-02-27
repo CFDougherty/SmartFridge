@@ -1,87 +1,152 @@
-/* General Page Styles */
 .recipes-container {
-  padding: 20px;
   font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: white;
 }
 
 .recipes-header {
-  font-size: 2rem;
   text-align: center;
+  font-size: 2rem;
   margin-bottom: 20px;
+  color: #333;
 }
 
-.recipes-controls {
+.search-form {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
-.search-bar {
-  width: 70%;
+.search-form input {
   padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
+  width: 300px;
+  border: 1px solid #ddd;
   border-radius: 5px;
 }
 
-.add-recipe-button {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 20px;
+.search-form button {
+  padding: 10px 15px;
+  background-color: #8c00ff;
   border: none;
+  color: white;
+  font-weight: bold;
   border-radius: 5px;
-  font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.add-recipe-button:hover {
-  background-color: #218838;
+.search-form button:hover {
+  background-color: #5a00b3;
 }
 
-.recipes-subheader {
-  font-size: 1.5rem;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.recipes-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+.recipes-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 10px;
+  width: 100%;
 }
 
 .recipe-card {
-  width: 30%;
-  margin: 10px;
+  background: white;
   padding: 15px;
-  border: 1px solid #ccc;
   border-radius: 10px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
+  border: 1px solid #ddd;
+  width: 100%;
 }
 
-.recipe-card:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+/* Responsive breakpoints */
+@media (min-width: 1024px) {
+  .recipes-section {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
-.recipe-card h3 {
-  margin-bottom: 10px;
-  font-size: 1.2rem;
+@media (max-width: 1023px) {
+  .recipes-section {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.recipe-card p {
-  margin: 5px 0;
+@media (max-width: 768px) {
+  .recipes-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-/* Modal Styles */
+@media (max-width: 480px) {
+  .recipes-section {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+.recipe-card img {
+  max-width: 100%;
+  border-radius: 5px;
+}
+
+.recipe-card button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  background: #8c00ff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.recipe-card button:hover {
+  background: #5a00b3;
+}
+
+/* Detailed view (from the “random recipe” approach) */
+.recipe-details {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 60%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.status-bar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close-button {
+  cursor: pointer;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: red;
+}
+
+.recipe-content img {
+  max-width: 100%;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.recipe-content p {
+  text-align: left;
+}
+
+/* Modal used for local “Add/Edit Recipe” */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -92,43 +157,36 @@
   background: white;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 300px;
-  text-align: center;
-}
-
-.modal-content input,
-.modal-content textarea {
-  width: calc(100% - 20px);
-  margin: 10px 0;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .modal-buttons {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   margin-top: 20px;
 }
 
 .modal-buttons button {
-  padding: 8px 15px;
+  padding: 10px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .modal-buttons button:first-child {
-  background-color: gray;
-  color: white;
+  background-color: #ccc;
+}
+
+.modal-buttons button:first-child:hover {
+  background-color: #9f9e9e;
 }
 
 .modal-buttons button:last-child {
-  background-color: #28a745;
+  background-color: #8c00ff;
   color: white;
 }
 
 .modal-buttons button:last-child:hover {
-  background-color: #218838;
+  background-color: #5a00b3;
 }

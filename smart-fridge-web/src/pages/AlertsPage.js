@@ -1,4 +1,3 @@
-
 import React, { useState, useContext } from "react";
 import { AlertsContext } from "../context/AlertsContext";
 import DatePicker from "react-datepicker";
@@ -20,16 +19,19 @@ const AlertsPage = () => {
     checked: false,
   });
 
+  // Toggle the checked state of an alert
   const toggleChecked = (alert) => {
     updateAlert(alert.id, { ...alert, checked: !alert.checked });
   };
 
+  // Move currentDate backward or forward by 'days' days
   const handleDateChange = (days) => {
     const newDate = new Date(currentDate);
     newDate.setDate(newDate.getDate() + days);
     setCurrentDate(newDate);
   };
 
+  // Open modal to create a new alert
   const openModalForNew = () => {
     setFormData({
       id: null,
@@ -42,8 +44,12 @@ const AlertsPage = () => {
     setShowModal(true);
   };
 
+  // Open modal to edit an existing alert
   const openModalForEdit = (alert) => {
-    setFormData({ ...alert, date: new Date(alert.date) });
+    setFormData({
+      ...alert,
+      date: new Date(alert.date), // ensure 'date' is a Date object
+    });
     setShowModal(true);
   };
 
@@ -51,38 +57,44 @@ const AlertsPage = () => {
     setShowModal(false);
   };
 
+  // Handle text or textarea changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle date change from DatePicker
   const handleDateSelect = (date) => {
     setFormData((prev) => ({ ...prev, date }));
   };
 
+  // Handle time change from TimePicker
   const handleTimeSelect = (time) => {
     setFormData((prev) => ({ ...prev, time }));
   };
 
+  // Save or update alert
   const handleSave = () => {
     if (!formData.title.trim()) return;
+
     if (formData.id) {
-      const updated = {
+      // Update existing alert
+      const updatedAlert = {
         ...formData,
-        date: formData.date.toDateString(),
+        date: formData.date.toDateString(), // store as string
       };
-      updateAlert(formData.id, updated);
+      updateAlert(formData.id, updatedAlert);
     } else {
+      // Add new alert
       addAlert({
-        title: formData.title,
-        description: formData.description,
-        date: formData.date.toDateString(),
-        time: formData.time,
+        ...formData,
+        date: formData.date.toDateString(), // store as string
       });
     }
     setShowModal(false);
   };
 
+  // Filter alerts to only those on the selected date
   const filteredAlerts = alerts.filter(
     (alert) => alert.date === currentDate.toDateString()
   );
@@ -90,11 +102,13 @@ const AlertsPage = () => {
   return (
     <div className="alerts-page">
       <h1 className="alerts-title">Alerts</h1>
+
       <div className="date-navigation">
         <button onClick={() => handleDateChange(-1)}>&lt;</button>
         <p>{currentDate.toDateString()}</p>
         <button onClick={() => handleDateChange(1)}>&gt;</button>
       </div>
+
       <ul className="alerts-list">
         {filteredAlerts.map((alert) => (
           <li
@@ -106,7 +120,7 @@ const AlertsPage = () => {
               type="checkbox"
               checked={alert.checked}
               onChange={(e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // prevent opening modal on checkbox click
                 toggleChecked(alert);
               }}
             />
@@ -116,7 +130,7 @@ const AlertsPage = () => {
             <button
               className="delete-button"
               onClick={(e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // prevent opening modal on delete click
                 removeAlert(alert.id);
               }}
             >
@@ -125,6 +139,7 @@ const AlertsPage = () => {
           </li>
         ))}
       </ul>
+
       <button className="add-button" onClick={openModalForNew}>
         + Schedule Alert
       </button>
@@ -133,6 +148,7 @@ const AlertsPage = () => {
         <div className="modal">
           <div className="modal-content">
             <h2>{formData.id ? "Edit Alert" : "New Alert"}</h2>
+
             <label>
               Title:
               <input
@@ -142,6 +158,7 @@ const AlertsPage = () => {
                 onChange={handleInputChange}
               />
             </label>
+
             <label>
               Description:
               <textarea
@@ -150,10 +167,12 @@ const AlertsPage = () => {
                 onChange={handleInputChange}
               />
             </label>
+
             <label>
               Date:
               <DatePicker selected={formData.date} onChange={handleDateSelect} />
             </label>
+
             <label>
               Time:
               <TimePicker
@@ -164,6 +183,7 @@ const AlertsPage = () => {
                 clockIcon={null}
               />
             </label>
+
             <div className="modal-buttons">
               <button onClick={handleCloseModal}>Cancel</button>
               <button onClick={handleSave}>
