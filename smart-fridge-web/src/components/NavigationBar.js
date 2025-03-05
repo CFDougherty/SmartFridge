@@ -1,6 +1,7 @@
 import React from 'react';
 import './NavigationBar.css'; 
 import homeIcon from '../assets/home.png';
+import itemsIcon from '../assets/items.png';
 import alertIcon from '../assets/alert.png';
 import listIcon from '../assets/list.png';
 import recipeIcon from '../assets/recipe.png';
@@ -15,7 +16,10 @@ const NavigationBar = () => {
       <button onClick={() => navigate('/')} className="nav-button">
         <img src={homeIcon} alt="Home" className="nav-icon" /> 
       </button>
-        <button onClick={() => navigate('/alerts')} className="nav-button">
+      <button onClick={() => navigate('/items')} className="nav-button">
+        <img src={itemsIcon} alt="Items" className="nav-icon" />  
+      </button>
+      <button onClick={() => navigate('/alerts')} className="nav-button">
         <img src={alertIcon} alt="Alert" className="nav-icon" />  
       </button>
       <button onClick={() => navigate('/shopping-list')} className="nav-button">
