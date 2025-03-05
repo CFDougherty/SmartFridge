@@ -9,14 +9,14 @@ export const ShoppingListProvider = ({ children }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/shopping-list")
+      .get("http://localhost:5001/shopping-list")
       .then((res) => setShoppingListItems(res.data))
       .catch((err) => console.error("Error fetching shopping list:", err));
   }, []);
 
   const addItem = async (item) => {
     try {
-      const res = await axios.post("http://localhost:5000/shopping-list", item);
+      const res = await axios.post("http://localhost:5001/shopping-list", item);
       setShoppingListItems((prev) => [...prev, res.data]);
     } catch (err) {
       console.error("Error adding item:", err);
@@ -24,8 +24,7 @@ export const ShoppingListProvider = ({ children }) => {
   };
   const updateItem = async (id, newData) => {
     try {
-      const res = await axios.put(`http://localhost:5000/shopping-list/${id}`, newData);
-      // Merge updated item into state
+      const res = await axios.put(`http://localhost:5001/shopping-list/${id}`, newData);
       setShoppingListItems((prev) =>
         prev.map((item) => (item.id === id ? res.data : item))
       );
@@ -36,7 +35,7 @@ export const ShoppingListProvider = ({ children }) => {
 
   const removeItem = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/shopping-list/${id}`);
+      await axios.delete(`http://localhost:5001/shopping-list/${id}`);
       setShoppingListItems((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
       console.error("Error removing item:", err);
