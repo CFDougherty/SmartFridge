@@ -3,7 +3,8 @@ import { AlertsContext } from "../context/AlertsContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import TimePicker from "react-time-picker";
-import "./styles/AlertsPage.css";
+import 'react-time-picker/dist/TimePicker.css';
+import './styles/AlertsPage.css';
 
 const AlertsPage = () => {
   const { alerts, addAlert, updateAlert, removeAlert } = useContext(AlertsContext);
@@ -99,6 +100,18 @@ const AlertsPage = () => {
     (alert) => alert.date === currentDate.toDateString()
   );
 
+  // Convert hours to 12-hour format
+  const formatTimeTo12Hour = (time) => {
+    if (!time) return "";
+  
+    let [hours, minutes] = time.split(":").map(Number);
+    let amPm = hours >= 12 ? "PM" : "AM";
+    
+    hours = hours % 12 || 12;
+  
+    return `${hours}:${minutes.toString().padStart(2, "0")} ${amPm}`;
+  };
+
   return (
     <div className="alerts-page">
       <h1 className="alerts-title">Alerts</h1>
@@ -125,7 +138,7 @@ const AlertsPage = () => {
               }}
             />
             <span className="alert-name">
-              {alert.title} ({alert.time})
+              {alert.title} ({formatTimeTo12Hour(alert.time)})
             </span>
             <button
               className="delete-button"
@@ -176,12 +189,13 @@ const AlertsPage = () => {
             <label>
               Time:
               <TimePicker
-                value={formData.time}
-                onChange={handleTimeSelect}
-                format="h:mm a"
-                clearIcon={null}
-                clockIcon={null}
-              />
+                    className="custom-time-picker"
+                    value={formData.time}
+                    onChange={handleTimeSelect}
+                    format="h:mm a"
+                    clearIcon={null}
+                    disableClock={true}
+              /> 
             </label>
 
             <div className="modal-buttons">
