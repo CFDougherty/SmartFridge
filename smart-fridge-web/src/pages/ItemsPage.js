@@ -3,52 +3,51 @@ import { ItemsContext } from "../context/ItemsContext";
 import "./styles/ItemsPage.css";
 
 const ItemsPage = () => {
-    const { items, fetchItems, addItem, updateItem, removeItem } = useContext(ItemsContext);
-    
-    const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({
-        id: null,
-        name: "",
-        quantity: "",
-        unit: "",
-        expiry: "",
-    });
+  const { items, fetchItems, addItem, updateItem, removeItem } = useContext(ItemsContext);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    id: null,
+    name: "",
+    quantity: "",
+    unit: "",
+    expiry: "",
+  });
 
-    useEffect(() => {
-        fetchItems();
-    }, [fetchItems]);
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
-    const openModal = (item = null) => {
-        setFormData(item ? item : { id: null, name: "", quantity: "", unit: "", expiry: "" });
-        setShowModal(true);
-    };
+  const openModal = (item = null) => {
+    setFormData(item ? item : { id: null, name: "", quantity: "", unit: "", expiry: "" });
+    setShowModal(true);
+  };
 
-    const closeModal = () => {
-        setShowModal(false);
-        setFormData({ id: null, name: "", quantity: "", unit: "", expiry: "" });
-    };
+  const closeModal = () => {
+    setShowModal(false);
+    setFormData({ id: null, name: "", quantity: "", unit: "", expiry: "" });
+  };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const addOrUpdateItem = async () => {
-        if (!formData.name.trim()) return;
+  const addOrUpdateItem = async () => {
+    if (!formData.name.trim()) return;
 
-        if (formData.id) {
-        await updateItem(formData.id, { ...formData });
-        } else {
-        await addItem({ ...formData });
-        await fetchItems();
-        }
+    if (formData.id) {
+      await updateItem(formData.id, { ...formData });
+    } else {
+      await addItem({ ...formData });
+    }
 
-        closeModal();
-    };
+    closeModal();
+  };
 
   return (
     <div className="items-page">
       <h1 className="items-title">Items in Fridge</h1>
+
       <ul className="item-list">
         {items.map((item) => (
           <li key={item.id} className="item">
@@ -59,18 +58,21 @@ const ItemsPage = () => {
           </li>
         ))}
       </ul>
+
       <button className="add-item-button" onClick={() => openModal()}>+ Add Item</button>
 
       {showModal && (
         <div className="modal">
           <div className="modal-content">
             <h2>{formData.id ? "Edit Item" : "Add Item"}</h2>
+
             <label>
               Item Name:
               <input type="text" name="name" value={formData.name} onChange={handleInputChange} />
             </label>
+
             <label>
-              Quantity:
+              Quantity & Unit:
               <div className="input-group">
                 <input type="text" name="quantity" value={formData.quantity} onChange={handleInputChange} />
                 <select name="unit" value={formData.unit} onChange={handleInputChange}>
@@ -83,10 +85,12 @@ const ItemsPage = () => {
                 </select>
               </div>
             </label>
+
             <label>
               Expiration:
               <input type="text" name="expiry" value={formData.expiry} onChange={handleInputChange} />
             </label>
+
             <div className="modal-buttons">
               <button onClick={closeModal}>Cancel</button>
               <button onClick={addOrUpdateItem}>{formData.id ? "Save" : "Add"}</button>
