@@ -5,12 +5,18 @@ import { ShoppingListContext } from "../context/ShoppingListContext";
 import { AlertsContext } from "../context/AlertsContext";
 import { RecipesContext } from "../context/RecipesContext";
 import "./styles/HomePage.css";
+import { ItemsContext } from "../context/ItemsContext";
 
 const HomePage = () => {
+  
+  /*
   const [items] = useState([
     { name: "Milk", quantity: "1L", expiry: "2 days" },
     { name: "Eggs", quantity: "12", expiry: "5 days" },
   ]);
+  */
+
+  const { items } = useContext(ItemsContext);
 
   const { shoppingListItems } = useContext(ShoppingListContext);
 
