@@ -9,14 +9,14 @@ export const RecipesProvider = ({ children }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/recipes")
+      .get("http://localhost:5001/recipes")
       .then((res) => setRecipes(res.data))
       .catch((err) => console.error("Error fetching recipes:", err));
   }, []);
 
   const addRecipe = async ({ name, cookTime, ingredients }) => {
     try {
-      const res = await axios.post("http://localhost:5000/recipes", {
+      const res = await axios.post("http://localhost:5001/recipes", {
         name,
         cookTime,
         ingredients,
@@ -29,7 +29,7 @@ export const RecipesProvider = ({ children }) => {
 
   const updateRecipe = async (id, { name, cookTime, ingredients }) => {
     try {
-      const res = await axios.put(`http://localhost:5000/recipes/${id}`, {
+      const res = await axios.put(`http://localhost:5001/recipes/${id}`, {
         name,
         cookTime,
         ingredients,
@@ -42,7 +42,7 @@ export const RecipesProvider = ({ children }) => {
 
   const removeRecipe = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/recipes/${id}`);
+      await axios.delete(`http://localhost:5001/recipes/${id}`);
       setRecipes((prev) => prev.filter((r) => r.id !== id));
     } catch (err) {
       console.error("Error deleting recipe:", err);

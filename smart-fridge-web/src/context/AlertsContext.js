@@ -9,14 +9,14 @@ export const AlertsProvider = ({ children }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/alerts")
+      .get("http://localhost:5001/alerts")
       .then((res) => setAlerts(res.data))
       .catch((err) => console.error("Error fetching alerts:", err));
   }, []);
 
   const addAlert = async (alertData) => {
     try {
-      const res = await axios.post("http://localhost:5000/alerts", alertData);
+      const res = await axios.post("http://localhost:5001/alerts", alertData);
       setAlerts((prev) => [...prev, res.data]);
     } catch (err) {
       console.error("Error adding alert:", err);
@@ -25,7 +25,7 @@ export const AlertsProvider = ({ children }) => {
 
   const updateAlert = async (id, newData) => {
     try {
-      const res = await axios.put(`http://localhost:5000/alerts/${id}`, newData);
+      const res = await axios.put(`http://localhost:5001/alerts/${id}`, newData);
       setAlerts((prev) => prev.map((a) => (a.id === id ? res.data : a)));
     } catch (err) {
       console.error("Error updating alert:", err);
@@ -34,7 +34,7 @@ export const AlertsProvider = ({ children }) => {
 
   const removeAlert = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/alerts/${id}`);
+      await axios.delete(`http://localhost:5001/alerts/${id}`);
       setAlerts((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
       console.error("Error removing alert:", err);

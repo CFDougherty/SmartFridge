@@ -1,12 +1,15 @@
+// AlertsPage.js
 import React, { useState, useContext } from "react";
 import { AlertsContext } from "../context/AlertsContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
 import "./styles/AlertsPage.css";
 
 const AlertsPage = () => {
-  const { alerts, addAlert, updateAlert, removeAlert } = useContext(AlertsContext);
+  const { alerts, addAlert, updateAlert, removeAlert } =
+    useContext(AlertsContext);
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
@@ -19,7 +22,6 @@ const AlertsPage = () => {
     checked: false,
   });
 
-  // Toggle the checked state of an alert
   const toggleChecked = (alert) => {
     updateAlert(alert.id, { ...alert, checked: !alert.checked });
   };
@@ -46,9 +48,10 @@ const AlertsPage = () => {
 
   // Open modal to edit an existing alert
   const openModalForEdit = (alert) => {
+    // parse date string back into a Date
     setFormData({
       ...alert,
-      date: new Date(alert.date), // ensure 'date' is a Date object
+      date: new Date(alert.date),
     });
     setShowModal(true);
   };
@@ -99,6 +102,15 @@ const AlertsPage = () => {
     (alert) => alert.date === currentDate.toDateString()
   );
 
+  // Convert "HH:mm" to 12-hour format
+  const formatTimeTo12Hour = (time) => {
+    if (!time) return "";
+    let [hours, minutes] = time.split(":").map(Number);
+    const amPm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+    return `${hours}:${minutes.toString().padStart(2, "0")} ${amPm}`;
+  };
+
   return (
     <div className="alerts-page">
       <h1 className="alerts-title">Alerts</h1>
@@ -125,7 +137,7 @@ const AlertsPage = () => {
               }}
             />
             <span className="alert-name">
-              {alert.title} ({alert.time})
+              {alert.title} ({formatTimeTo12Hour(alert.time)})
             </span>
             <button
               className="delete-button"
@@ -176,11 +188,12 @@ const AlertsPage = () => {
             <label>
               Time:
               <TimePicker
+                className="custom-time-picker"
                 value={formData.time}
                 onChange={handleTimeSelect}
                 format="h:mm a"
                 clearIcon={null}
-                clockIcon={null}
+                disableClock
               />
             </label>
 
