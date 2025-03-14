@@ -1,9 +1,14 @@
+// src/pages/ItemsPage.js
 import React, { useState, useContext, useEffect } from "react";
 import { ItemsContext } from "../context/ItemsContext";
+import { useNavigate } from "react-router-dom";
 import "./styles/ItemsPage.css";
 
 const ItemsPage = () => {
-  const { items, fetchItems, addItem, updateItem, removeItem } = useContext(ItemsContext);
+  const { items, fetchItems, addItem, updateItem, removeItem } =
+    useContext(ItemsContext);
+  const navigate = useNavigate();
+
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     id: null,
@@ -18,7 +23,11 @@ const ItemsPage = () => {
   }, [fetchItems]);
 
   const openModal = (item = null) => {
-    setFormData(item ? item : { id: null, name: "", quantity: "", unit: "", expiry: "" });
+    if (item) {
+      setFormData(item);
+    } else {
+      setFormData({ id: null, name: "", quantity: "", unit: "", expiry: "" });
+    }
     setShowModal(true);
   };
 
@@ -36,11 +45,10 @@ const ItemsPage = () => {
     if (!formData.name.trim()) return;
 
     if (formData.id) {
-      await updateItem(formData.id, { ...formData });
+      await updateItem(formData.id, formData);
     } else {
-      await addItem({ ...formData });
+      await addItem(formData);
     }
-
     closeModal();
   };
 
@@ -54,12 +62,28 @@ const ItemsPage = () => {
             <span onClick={() => openModal(item)} className="clickable">
               {item.name} ({item.quantity} {item.unit}) - Exp: {item.expiry}
             </span>
-            <button className="delete-button" onClick={() => removeItem(item.id)}>x</button>
+            <button
+              className="delete-button"
+              onClick={() => removeItem(item.id)}
+            >
+              x
+            </button>
           </li>
         ))}
       </ul>
 
-      <button className="add-item-button" onClick={() => openModal()}>+ Add Item</button>
+      <div className="button-group">
+        {/* Both buttons now share the same styling */}
+        <button className="add-item-button" onClick={() => openModal()}>
+          + Add Item
+        </button>
+        <button
+          className="add-item-button" // Same class as "Add Item" button
+          onClick={() => navigate("/scan-barcode")}
+        >
+          + Add via Barcode
+        </button>
+      </div>
 
       {showModal && (
         <div className="modal">
@@ -68,14 +92,28 @@ const ItemsPage = () => {
 
             <label>
               Item Name:
-              <input type="text" name="name" value={formData.name} onChange={handleInputChange} />
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+              />
             </label>
 
             <label>
               Quantity & Unit:
               <div className="input-group">
-                <input type="text" name="quantity" value={formData.quantity} onChange={handleInputChange} />
-                <select name="unit" value={formData.unit} onChange={handleInputChange}>
+                <input
+                  type="text"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleInputChange}
+                />
+                <select
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleInputChange}
+                >
                   <option value="">Unit</option>
                   <option value="lb.">Pounds (lb.)</option>
                   <option value="oz.">Ounces (oz.)</option>
@@ -88,12 +126,19 @@ const ItemsPage = () => {
 
             <label>
               Expiration:
-              <input type="text" name="expiry" value={formData.expiry} onChange={handleInputChange} />
+              <input
+                type="text"
+                name="expiry"
+                value={formData.expiry}
+                onChange={handleInputChange}
+              />
             </label>
 
             <div className="modal-buttons">
               <button onClick={closeModal}>Cancel</button>
-              <button onClick={addOrUpdateItem}>{formData.id ? "Save" : "Add"}</button>
+              <button onClick={addOrUpdateItem}>
+                {formData.id ? "Save" : "Add"}
+              </button>
             </div>
           </div>
         </div>
