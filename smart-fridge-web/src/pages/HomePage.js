@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useContext } from "react";
 import { ShoppingListContext } from "../context/ShoppingListContext";
@@ -6,6 +5,7 @@ import { AlertsContext } from "../context/AlertsContext";
 import { RecipesContext } from "../context/RecipesContext";
 import "./styles/HomePage.css";
 import { ItemsContext } from "../context/ItemsContext";
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
   
@@ -31,13 +31,15 @@ const HomePage = () => {
   };
   const upcomingAlerts = alerts.slice(0, 3);
 
+  const navigate = useNavigate();
+
   return (
     <div className="home-container">
       <h1 className="home-header">Friday, Nov. 1</h1>
 
       <div className="grid-container">
         {/* Items in Fridge Section */}
-        <div className="card">
+        <div className="card" onClick={() => navigate("/items")}>
           <h2>Items in Fridge</h2>
           <ul>
             {items.map((item, index) => (
@@ -49,7 +51,7 @@ const HomePage = () => {
         </div>
 
         {/* Shopping List Section */}
-        <div className="card">
+        <div className="card" onClick={() => navigate("/shopping-list")}>
           <h2>Shopping List</h2>
           <ul>
             {shoppingListItems.map((item) => (
@@ -62,7 +64,7 @@ const HomePage = () => {
         </div>
 
         {/* Recipes Section */}
-        <div className="card">
+        <div className="card" onClick={() => navigate("/recipes")}>
           <h2>Recipes</h2>
           <p>Sample: {firstRecipe.name}</p>
           <p>Cook Time: {firstRecipe.cookTime}</p>
@@ -75,7 +77,7 @@ const HomePage = () => {
         </div>
 
         {/* Alerts Section */}
-        <div className="card">
+        <div className="card" onClick={() => navigate("/alerts")}>
           <h2>Alerts</h2>
           <ul>
             {upcomingAlerts.map((alert) => (
