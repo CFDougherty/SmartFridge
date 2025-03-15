@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
@@ -58,9 +57,8 @@ app.get("/recipes", (req, res) => {
 
 app.post("/recipes", (req, res) => {
   const { name, cookTime, ingredients } = req.body;
-  if (!name || !cookTime || !ingredients) {
+  if (!name || !cookTime || !ingredients)
     return res.status(400).json({ error: "Missing required fields" });
-  }
   db.run(
     `INSERT INTO recipes (name, cookTime, ingredients) VALUES (?, ?, ?)`,
     [name, cookTime, ingredients.join(", ")],
@@ -103,22 +101,14 @@ app.get("/alerts", (req, res) => {
 
 app.post("/alerts", (req, res) => {
   const { title, description, date, time } = req.body;
-  if (!title || !date || !time) {
+  if (!title || !date || !time)
     return res.status(400).json({ error: "Missing required fields" });
-  }
   db.run(
     `INSERT INTO alerts (title, description, date, time) VALUES (?, ?, ?, ?)`,
     [title, description, date, time],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: this.lastID,
-        title,
-        description,
-        date,
-        time,
-        checked: false,
-      });
+      res.json({ id: this.lastID, title, description, date, time, checked: false });
     }
   );
 });
@@ -132,14 +122,7 @@ app.put("/alerts/:id", (req, res) => {
     [title, description, date, time, checkedValue, id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: Number(id),
-        title,
-        description,
-        date,
-        time,
-        checked,
-      });
+      res.json({ id: Number(id), title, description, date, time, checked });
     }
   );
 });
@@ -163,18 +146,14 @@ app.get("/shopping-list", (req, res) => {
 
 app.post("/shopping-list", (req, res) => {
   const { name, quantity } = req.body;
-  if (!name) return res.status(400).json({ error: "Item name is required" });
+  if (!name)
+    return res.status(400).json({ error: "Item name is required" });
   db.run(
     `INSERT INTO shopping_list (name, quantity) VALUES (?, ?)`,
     [name, quantity || ""],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: this.lastID,
-        name,
-        quantity: quantity || "",
-        checked: false,
-      });
+      res.json({ id: this.lastID, name, quantity: quantity || "", checked: false });
     }
   );
 });
@@ -211,7 +190,8 @@ app.get("/fridge", (req, res) => {
 
 app.post("/fridge", (req, res) => {
   const { name, quantity, unit, expiry } = req.body;
-  if (!name) return res.status(400).json({ error: "Item name is required" });
+  if (!name)
+    return res.status(400).json({ error: "Item name is required" });
   db.run(
     `INSERT INTO fridge (name, quantity, unit, expiry) VALUES (?, ?, ?, ?)`,
     [name, quantity || "", unit || "", expiry || ""],
@@ -243,6 +223,7 @@ app.delete("/fridge/:id", (req, res) => {
   });
 });
 
+// Additional endpoint: Return all fridge items as /items
 app.get("/items", (req, res) => {
   db.all("SELECT * FROM fridge", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -257,15 +238,12 @@ app.get("/barcodes/lookup/:code", async (req, res) => {
     if (code.length === 13 && code.startsWith("0")) {
       code = code.slice(1);
     }
-
     const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`;
     const response = await axios.get(url);
     const data = response.data;
-
     if (!data || data.code !== "OK" || !data.items || data.items.length === 0) {
       return res.json({ found: false, productName: "" });
     }
-
     const productName = data.items[0].title || "";
     return res.json({ found: true, productName });
   } catch (error) {
@@ -273,6 +251,28 @@ app.get("/barcodes/lookup/:code", async (req, res) => {
     return res.json({ found: false, productName: "" });
   }
 });
+
+setInterval(() => {
+  console.log("Updating expiry tracking...");
+  db.all("SELECT * FROM fridge", [], (err, rows) => {
+    if (err) return console.error("Error fetching items:", err);
+    const today = new Date();
+    rows.forEach(item => {
+      if (!item.expiry) return;
+      const expiryDate = new Date(item.expiry);
+      const timeDiff = expiryDate - today;
+      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      db.run(
+        `UPDATE fridge SET expiry = ? WHERE id = ?`,
+        [daysLeft < 0 ? "Expired" : item.expiry, item.id],
+        (updateErr) => {
+          if (updateErr)
+            console.error("Error updating expiry status:", updateErr);
+        }
+      );
+    });
+  });
+}, 24 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
