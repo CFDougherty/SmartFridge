@@ -54,6 +54,8 @@ const ItemsPage = () => {
         closeModal();
     };
 
+    const navigate = useNavigate();
+
   return (
     <div className="items-page">
       <h1 className="items-title">Items in Fridge</h1>
