@@ -148,13 +148,14 @@ const RecipesPage = () => {
       </div>
 
       {selectedRecipe && (
-        <div className="recipe-details">
-          <div className="status-bar">
-            <span onClick={closeRecipeDetails} className="close-button">
-              &times;
-            </span>
-          </div>
-          <div className="recipe-content">
+        <div className="recipe-overlay" onClick={closeRecipeDetails}>
+          <div className="recipe-details" onClick={(e) => e.stopPropagation()}>
+            <div className="status-bar">
+              <span onClick={closeRecipeDetails} className="close-button">
+                &times;
+              </span>
+            </div>
+
             <h2>{selectedRecipe.title}</h2>
             <img src={selectedRecipe.image} alt={selectedRecipe.title} />
             <p>
@@ -168,12 +169,11 @@ const RecipesPage = () => {
             <p>
               <strong>Instructions:</strong>
             </p>
-            <div
-              dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }}
-            />
+            <div dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }} />
           </div>
         </div>
       )}
+
 
       <h2 className="recipes-subheader">My Saved Recipes</h2>
       <div className="recipes-grid">

@@ -32,14 +32,16 @@ export const ItemsProvider = ({ children }) => {
 
     const updateItem = async (id, newData) => {
         try {
-            const res = await axios.put(`http://localhost:5001/fridge/${id}`, newData);
-            setItems((prevItems) =>
-                prevItems.map((item) => (item.id === id ? res.data : item))
-            );
+            await axios.put(`http://localhost:5001/fridge/${id}`, newData);
+    
+            const res = await axios.get("http://localhost:5001/fridge"); 
+            setItems(res.data);
+    
         } catch (err) {
             console.error("Error updating item:", err);
         }
     };
+    
 
     const removeItem = async (id) => {
         try {
