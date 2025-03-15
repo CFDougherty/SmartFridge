@@ -8,6 +8,7 @@
     background-color: #f8f9fa;
     border-top: 1px solid #ddd;
     padding: 10px 0;
+    z-index: 1000;
   }
   
   .nav-button {
