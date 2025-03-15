@@ -157,8 +157,8 @@ const AlertsPage = () => {
       </button>
 
       {showModal && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="modal" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>{formData.id ? "Edit Alert" : "New Alert"}</h2>
 
             <label>

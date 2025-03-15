@@ -1,11 +1,25 @@
-import React, { useContext } from "react";
+
+import React, { useState } from "react";
+import { useContext } from "react";
+
 import { ShoppingListContext } from "../context/ShoppingListContext";
 import { AlertsContext } from "../context/AlertsContext";
 import { RecipesContext } from "../context/RecipesContext";
 import { ItemsContext } from "../context/ItemsContext";
 import "./styles/HomePage.css";
+import { ItemsContext } from "../context/ItemsContext";
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
+  
+  /*
+  const [items] = useState([
+    { name: "Milk", quantity: "1L", expiry: "2 days" },
+    { name: "Eggs", quantity: "12", expiry: "5 days" },
+  ]);
+  */
+
+  const { items } = useContext(ItemsContext);
   const { shoppingListItems } = useContext(ShoppingListContext);
   const { alerts } = useContext(AlertsContext);
   const { recipes } = useContext(RecipesContext);
@@ -14,12 +28,16 @@ const HomePage = () => {
   const firstRecipe = recipes[0] || { name: "No recipes yet", cookTime: "", ingredients: [] };
   const upcomingAlerts = alerts.slice(0, 3);
 
+  const navigate = useNavigate();
+
   return (
     <div className="home-container">
       <h1 className="home-header">Friday, Nov. 1</h1>
 
       <div className="grid-container">
-        <div className="card">
+
+        {/* Items in Fridge Section */}
+        <div className="card" onClick={() => navigate("/items")}>
           <h2>Items in Fridge</h2>
           <ul>
             {items.map((item) => (
@@ -30,8 +48,8 @@ const HomePage = () => {
             ))}
           </ul>
         </div>
-
-        <div className="card">
+        {/* Shopping List Section */}
+        <div className="card" onClick={() => navigate("/shopping-list")}>
           <h2>Shopping List</h2>
           <ul>
             {shoppingListItems.map((item) => (
@@ -42,8 +60,8 @@ const HomePage = () => {
             ))}
           </ul>
         </div>
-
-        <div className="card">
+        {/* Recipes Section */}
+        <div className="card" onClick={() => navigate("/recipes")}>
           <h2>Recipes</h2>
           <p>Sample: {firstRecipe.name}</p>
           <p>Cook Time: {firstRecipe.cookTime}</p>
@@ -53,8 +71,8 @@ const HomePage = () => {
               firstRecipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}
           </ul>
         </div>
-
-        <div className="card">
+        {/* Alerts Section */}
+        <div className="card" onClick={() => navigate("/alerts")}>
           <h2>Alerts</h2>
           <ul>
             {upcomingAlerts.map((alert) => (

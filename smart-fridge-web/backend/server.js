@@ -15,36 +15,56 @@ const db = new sqlite3.Database("./smart-fridge.db", (err) => {
   console.log("Connected to the smart-fridge.db database.");
 });
 
-db.run(`CREATE TABLE IF NOT EXISTS recipes (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT,
-  cookTime TEXT,
-  ingredients TEXT
-)`);
+db.run(
+  `CREATE TABLE IF NOT EXISTS recipes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    cookTime TEXT,
+    ingredients TEXT
+  )`,
+  (err) => {
+    if (err) console.error("Error creating recipes table:", err.message);
+  }
+);
 
-db.run(`CREATE TABLE IF NOT EXISTS alerts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT,
-  description TEXT,
-  date TEXT,
-  time TEXT,
-  checked INTEGER DEFAULT 0
-)`);
+db.run(
+  `CREATE TABLE IF NOT EXISTS alerts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    description TEXT,
+    date TEXT,
+    time TEXT,
+    checked INTEGER DEFAULT 0
+  )`,
+  (err) => {
+    if (err) console.error("Error creating alerts table:", err.message);
+  }
+);
 
-db.run(`CREATE TABLE IF NOT EXISTS shopping_list (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT,
-  quantity TEXT,
-  checked INTEGER DEFAULT 0
-)`);
+db.run(
+  `CREATE TABLE IF NOT EXISTS shopping_list (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    quantity TEXT,
+    checked INTEGER DEFAULT 0
+  )`,
+  (err) => {
+    if (err) console.error("Error creating shopping_list table:", err.message);
+  }
+);
 
-db.run(`CREATE TABLE IF NOT EXISTS fridge (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT,
-  quantity TEXT,
-  unit TEXT,
-  expiry TEXT
-)`);
+db.run(
+  `CREATE TABLE IF NOT EXISTS fridge (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    quantity TEXT,
+    unit TEXT,
+    expiry DATE
+  )`,
+  (err) => {
+    if (err) console.error("Error creating fridge table:", err.message);
+  }
+);
 
 app.get("/recipes", (req, res) => {
   db.all("SELECT * FROM recipes", [], (err, rows) => {
@@ -183,16 +203,31 @@ app.post("/inventory/upload", (req, res) => {
 app.get("/fridge", (req, res) => {
   db.all("SELECT * FROM fridge", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
+
+    const today = new Date();
+    const itemsWithExpiry = rows.map(item => {
+      if (!item.expiry) return { ...item, daysUntilExpiry: "No expiry set" };
+
+      const expiryDate = new Date(item.expiry);
+      const timeDiff = expiryDate - today;
+      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+      return { ...item, daysUntilExpiry: daysLeft >= 0 ? `${daysLeft} days left` : "Expired" };
+    });
+
+    res.json(itemsWithExpiry);
   });
 });
+
+
 
 app.post("/fridge", (req, res) => {
   const { name, quantity, unit, expiry } = req.body;
   if (!name) return res.status(400).json({ error: "Item name is required" });
+
   db.run(
     `INSERT INTO fridge (name, quantity, unit, expiry) VALUES (?, ?, ?, ?)`,
-    [name, quantity || "", unit || "", expiry || ""],
+    [name, quantity || "", unit || "", expiry ? new Date(expiry).toISOString().split("T")[0] : null],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID, name, quantity, unit, expiry });
@@ -200,18 +235,21 @@ app.post("/fridge", (req, res) => {
   );
 });
 
+
 app.put("/fridge/:id", (req, res) => {
   const { id } = req.params;
   const { name, quantity, unit, expiry } = req.body;
+  
   db.run(
     `UPDATE fridge SET name = ?, quantity = ?, unit = ?, expiry = ? WHERE id = ?`,
-    [name, quantity, unit, expiry, id],
+    [name, quantity, unit, expiry ? new Date(expiry).toISOString().split("T")[0] : null, id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: Number(id), name, quantity, unit, expiry });
     }
   );
 });
+
 
 app.delete("/fridge/:id", (req, res) => {
   const { id } = req.params;
@@ -221,12 +259,34 @@ app.delete("/fridge/:id", (req, res) => {
   });
 });
 
-app.get("/barcodes/lookup/:code", async (req, res) => {
-  let { code } = req.params;
-  try {
-    if (code.length === 13 && code.startsWith("0")) {
-      code = code.slice(1);
-    }
+const PORT = process.env.PORT || 5001;
+
+
+setInterval(() => {
+  console.log("Updating expiry tracking...");
+  db.all("SELECT * FROM fridge", [], (err, rows) => {
+      if (err) return console.error("Error fetching items:", err);
+
+      const today = new Date();
+      rows.forEach(item => {
+          if (!item.expiry) return;
+
+          const expiryDate = new Date(item.expiry);
+          const timeDiff = expiryDate - today;
+          const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+          db.run(
+              `UPDATE fridge SET expiry = ? WHERE id = ?`,
+              [daysLeft < 0 ? "Expired" : item.expiry, item.id],
+              (updateErr) => {
+                  if (updateErr) console.error("Error updating expiry status:", updateErr);
+              }
+          );
+      });
+  });
+}, 24 * 60 * 60 * 1000); // Run every 24 hours
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
     const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`;
     const response = await axios.get(url);

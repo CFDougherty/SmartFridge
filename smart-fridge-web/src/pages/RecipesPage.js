@@ -1,23 +1,24 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { RecipesContext } from "../context/RecipesContext";
+import { useSpring, animated } from "@react-spring/web";
+import { useGesture } from "@use-gesture/react";
 import "./styles/RecipesPage.css";
 
 const apiKey = "6dacd1bf57fc4f27be8752284f04b8cd";
 
 const RecipesPage = () => {
   const { recipes, addRecipe, updateRecipe, removeRecipe } = useContext(RecipesContext);
-
   const [query, setQuery] = useState("");
   const [apiRecipes, setApiRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    cookTime: "",
-    ingredients: "",
-  });
+  const [formData, setFormData] = useState({ name: "", cookTime: "", ingredients: "" });
+
+  const scrollRef = useRef();
+  const modalScrollRef = useRef(); // Reference for modal scrolling
+  const [{ y }, set] = useSpring(() => ({ y: 0 }));
 
   useEffect(() => {
     fetchRandomRecipes();
@@ -75,10 +76,7 @@ const RecipesPage = () => {
     setFormData({
       name: recipe.name,
       cookTime: recipe.cookTime,
-      ingredients:
-        typeof recipe.ingredients === "string"
-          ? recipe.ingredients
-          : recipe.ingredients.join(", "),
+      ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients.join(", ") : recipe.ingredients,
     });
     setShowModal(true);
   };
@@ -90,24 +88,12 @@ const RecipesPage = () => {
 
   const handleSubmit = () => {
     if (!formData.name.trim()) return;
-
-    const ingArray = formData.ingredients
-      .split(",")
-      .map((i) => i.trim())
-      .filter((i) => i);
+    const ingArray = formData.ingredients.split(",").map((i) => i.trim()).filter((i) => i);
 
     if (editingId) {
-      updateRecipe(editingId, {
-        name: formData.name,
-        cookTime: formData.cookTime,
-        ingredients: ingArray,
-      });
+      updateRecipe(editingId, { name: formData.name, cookTime: formData.cookTime, ingredients: ingArray });
     } else {
-      addRecipe({
-        name: formData.name,
-        cookTime: formData.cookTime,
-        ingredients: ingArray,
-      });
+      addRecipe({ name: formData.name, cookTime: formData.cookTime, ingredients: ingArray });
     }
     setShowModal(false);
   };
@@ -116,128 +102,93 @@ const RecipesPage = () => {
     removeRecipe(id);
   };
 
+  const bind = useGesture(
+    {
+      onDrag: ({ offset: [, my] }) => {
+        set({ y: my });
+      },
+    },
+    { drag: { axis: "y", rubberband: false } }
+  );
+
+  // Modal Scrolling
+  const [{ my }, setModalScroll] = useSpring(() => ({ my: 0 }));
+
+  const modalBind = useGesture(
+    {
+      onDrag: ({ offset: [, my] }) => {
+        setModalScroll({ my });
+      },
+    },
+    { drag: { axis: "y", rubberband: false } }
+  );
+
   return (
     <div className="recipes-container">
+      <animated.div ref={scrollRef} className="recipes-scrollable" {...bind()} style={{ transform: y.to((val) => `translateY(${val}px)`) }}>
       <h1 className="recipes-header">Recipes</h1>
 
       <div className="search-form">
-        <input
-          type="text"
-          placeholder="Search for recipes..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+        <input type="text" placeholder="Search for recipes..." value={query} onChange={(e) => setQuery(e.target.value)} />
         <button onClick={searchRecipes}>Search</button>
-        <button className="add-recipe-button" onClick={handleAddNewClick}>
-          + Add Recipe
-        </button>
+        <button className="add-recipe-button" onClick={handleAddNewClick}>+ Add Recipe</button>
       </div>
 
-      <div className="recipes-section">
-        {apiRecipes.length === 0 ? (
-          <p>No recipes found. Try searching for something else.</p>
-        ) : (
-          apiRecipes.map((recipe) => (
+      
+        <div className="recipes-section">
+          {apiRecipes.map((recipe) => (
             <div key={recipe.id} className="recipe-card">
               <img src={recipe.image} alt={recipe.title} />
               <h3>{recipe.title}</h3>
               <button onClick={() => showRecipeDetails(recipe.id)}>View Recipe</button>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+
+        <h2 className="recipes-subheader">My Saved Recipes</h2>
+        <div className="recipes-grid">
+          {recipes.map((recipe) => (
+            <div key={recipe.id} className="recipe-card">
+              <h3>{recipe.name}</h3>
+              <p>Cook Time: {recipe.cookTime}</p>
+              <p>Ingredients: {Array.isArray(recipe.ingredients) ? recipe.ingredients.join(", ") : recipe.ingredients}</p>
+              <div className="card-buttons">
+                <button onClick={() => handleEditClick(recipe)}>Edit</button>
+                <button onClick={() => handleDelete(recipe.id)}>Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      
 
       {selectedRecipe && (
-        <div className="recipe-details">
-          <div className="status-bar">
-            <span onClick={closeRecipeDetails} className="close-button">
-              &times;
-            </span>
-          </div>
-          <div className="recipe-content">
+        <div className="modal" onClick={closeRecipeDetails}>
+          <animated.div 
+            ref={modalScrollRef} 
+            className="modal-content" 
+            {...modalBind()} 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ transform: my.to((val) => `translateY(${val}px)`) }}
+          >
             <h2>{selectedRecipe.title}</h2>
-            <img src={selectedRecipe.image} alt={selectedRecipe.title} />
-            <p>
-              <strong>Ingredients:</strong>
-            </p>
+            <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.title} />
+            <p><strong>Ingredients:</strong></p>
             <ul>
               {selectedRecipe.extendedIngredients?.map((ingredient, index) => (
                 <li key={index}>{ingredient.original}</li>
               ))}
             </ul>
-            <p>
-              <strong>Instructions:</strong>
-            </p>
-            <div
-              dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }}
-            />
-          </div>
+            <p><strong>Instructions:</strong></p>
+            <div dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }} />
+            <button onClick={closeRecipeDetails}>Close</button>
+          </animated.div>
         </div>
       )}
+      </animated.div>
 
-      <h2 className="recipes-subheader">My Saved Recipes</h2>
-      <div className="recipes-grid">
-        {recipes.map((recipe) => (
-          <div key={recipe.id} className="recipe-card">
-            <h3>{recipe.name}</h3>
-            <p>Cook Time: {recipe.cookTime}</p>
-            <p>
-              Ingredients:{" "}
-              {Array.isArray(recipe.ingredients)
-                ? recipe.ingredients.join(", ")
-                : recipe.ingredients}
-            </p>
-            <div className="card-buttons">
-              <button onClick={() => handleEditClick(recipe)}>Edit</button>
-              <button onClick={() => handleDelete(recipe.id)}>Delete</button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>{editingId ? "Edit Recipe" : "Add Recipe"}</h2>
-            <label>
-              Name:
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-              />
-            </label>
-            <label>
-              Cook Time:
-              <input
-                type="text"
-                name="cookTime"
-                value={formData.cookTime}
-                onChange={handleInputChange}
-                placeholder="e.g., 30 mins"
-              />
-            </label>
-            <label>
-              Ingredients (comma separated):
-              <textarea
-                name="ingredients"
-                value={formData.ingredients}
-                onChange={handleInputChange}
-                placeholder="e.g., Chicken, Spices"
-              />
-            </label>
-            <div className="modal-buttons">
-              <button onClick={() => setShowModal(false)}>Cancel</button>
-              <button onClick={handleSubmit}>
-                {editingId ? "Save" : "Add"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
 export default RecipesPage;
+

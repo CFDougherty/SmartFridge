@@ -76,8 +76,8 @@ const ShoppingListPage = () => {
       <button className="auto-add-button" onClick={toggleAutoAdd}>{autoAdd ? "Auto-Add Enabled" : "Auto-Add Disabled"}</button>
 
       {showModal && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="modal" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>{formData.id ? "Edit Item" : "Add Item"}</h2>
             <label>
               Item Name:
