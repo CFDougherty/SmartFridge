@@ -1,8 +1,11 @@
+
 import React, { useState } from "react";
 import { useContext } from "react";
+
 import { ShoppingListContext } from "../context/ShoppingListContext";
 import { AlertsContext } from "../context/AlertsContext";
 import { RecipesContext } from "../context/RecipesContext";
+import { ItemsContext } from "../context/ItemsContext";
 import "./styles/HomePage.css";
 import { ItemsContext } from "../context/ItemsContext";
 import { useNavigate } from 'react-router-dom';
@@ -17,18 +20,12 @@ const HomePage = () => {
   */
 
   const { items } = useContext(ItemsContext);
-
   const { shoppingListItems } = useContext(ShoppingListContext);
-
   const { alerts } = useContext(AlertsContext);
-
   const { recipes } = useContext(RecipesContext);
+  const { items } = useContext(ItemsContext);
 
-  const firstRecipe = recipes[0] || {
-    name: "No recipes yet",
-    cookTime: "",
-    ingredients: [],
-  };
+  const firstRecipe = recipes[0] || { name: "No recipes yet", cookTime: "", ingredients: [] };
   const upcomingAlerts = alerts.slice(0, 3);
 
   const navigate = useNavigate();
@@ -38,18 +35,19 @@ const HomePage = () => {
       <h1 className="home-header">Friday, Nov. 1</h1>
 
       <div className="grid-container">
+
         {/* Items in Fridge Section */}
         <div className="card" onClick={() => navigate("/items")}>
           <h2>Items in Fridge</h2>
           <ul>
-            {items.map((item, index) => (
-              <li key={index}>
-                {item.name} ({item.quantity}) - Exp: {item.expiry}
+            {items.map((item) => (
+              <li key={item.id}>
+                {item.name} ({item.quantity}
+                {item.unit && ` ${item.unit}`}) - Exp: {item.expiry}
               </li>
             ))}
           </ul>
         </div>
-
         {/* Shopping List Section */}
         <div className="card" onClick={() => navigate("/shopping-list")}>
           <h2>Shopping List</h2>
@@ -62,7 +60,6 @@ const HomePage = () => {
             ))}
           </ul>
         </div>
-
         {/* Recipes Section */}
         <div className="card" onClick={() => navigate("/recipes")}>
           <h2>Recipes</h2>
@@ -70,12 +67,10 @@ const HomePage = () => {
           <p>Cook Time: {firstRecipe.cookTime}</p>
           <p>Ingredients:</p>
           <ul>
-            {Array.isArray(firstRecipe.ingredients)
-              ? firstRecipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)
-              : null}
+            {Array.isArray(firstRecipe.ingredients) &&
+              firstRecipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}
           </ul>
         </div>
-
         {/* Alerts Section */}
         <div className="card" onClick={() => navigate("/alerts")}>
           <h2>Alerts</h2>
@@ -89,7 +84,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Progress Bar Section */}
       <div className="progress-container">
         <p>60% Full</p>
         <div className="progress-bar">

@@ -1,0 +1,22 @@
+/* src/pages/styles/BarcodeScannerPage.css */
+.barcode-scanner-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .scanner-wrapper {
+    border: 2px dashed #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  
+  .not-found-section {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  

@@ -1,5 +1,7 @@
+// src/pages/ItemsPage.js
 import React, { useState, useContext, useEffect } from "react";
 import { ItemsContext } from "../context/ItemsContext";
+import { useNavigate } from "react-router-dom";
 import "./styles/ItemsPage.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -55,6 +57,7 @@ const ItemsPage = () => {
   return (
     <div className="items-page">
       <h1 className="items-title">Items in Fridge</h1>
+
       <ul className="item-list">
         {items.map((item) => (
           <li key={item.id} className="item">
@@ -64,25 +67,58 @@ const ItemsPage = () => {
                 ? ` Exp: ${item.daysUntilExpiry === "Expired" ? "Expired" : `${item.daysUntilExpiry}`}`
                 : " Exp: No expiry set"}
             </span>
-            <button className="delete-button" onClick={() => removeItem(item.id)}>x</button>
+            <button
+              className="delete-button"
+              onClick={() => removeItem(item.id)}
+            >
+              x
+            </button>
           </li>
         ))}
       </ul>
-      <button className="add-item-button" onClick={() => openModal()}>+ Add Item</button>
+
+      <div className="button-group">
+        {/* Both buttons now share the same styling */}
+        <button className="add-item-button" onClick={() => openModal()}>
+          + Add Item
+        </button>
+        <button
+          className="add-item-button" // Same class as "Add Item" button
+          onClick={() => navigate("/scan-barcode")}
+        >
+          + Add via Barcode
+        </button>
+      </div>
 
       {showModal && (
         <div className="modal" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>{formData.id ? "Edit Item" : "Add Item"}</h2>
+
             <label>
               Item Name:
-              <input type="text" name="name" value={formData.name} onChange={handleInputChange} />
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+              />
             </label>
+
             <label>
-              Quantity:
+              Quantity & Unit:
               <div className="input-group">
-                <input type="text" name="quantity" value={formData.quantity} onChange={handleInputChange} />
-                <select name="unit" value={formData.unit} onChange={handleInputChange}>
+                <input
+                  type="text"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleInputChange}
+                />
+                <select
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleInputChange}
+                >
                   <option value="">Unit</option>
                   <option value="lb.">Pounds (lb.)</option>
                   <option value="oz.">Ounces (oz.)</option>
@@ -92,6 +128,7 @@ const ItemsPage = () => {
                 </select>
               </div>
             </label>
+
             <label>
                 Expiration Date:
                     {/*<input type="text" name="expiry" value={formData.expiry} onChange={handleInputChange} />*/}
@@ -101,9 +138,12 @@ const ItemsPage = () => {
                         dateFormat="yyyy-MM-dd"
                     />
             </label>
+
             <div className="modal-buttons">
               <button onClick={closeModal}>Cancel</button>
-              <button onClick={addOrUpdateItem}>{formData.id ? "Save" : "Add"}</button>
+              <button onClick={addOrUpdateItem}>
+                {formData.id ? "Save" : "Add"}
+              </button>
             </div>
           </div>
         </div>

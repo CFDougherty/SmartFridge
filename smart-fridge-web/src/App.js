@@ -1,19 +1,25 @@
-import React from 'react';
-import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// src/App.js
+import React from "react";
+import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import HomePage from './pages/HomePage';
+
+import HomePage from "./pages/HomePage";
 import ItemsPage from "./pages/ItemsPage";
-import AlertsPage from './pages/AlertsPage';
-import ShoppingListPage from './pages/ShoppingListPage';
-import RecipesPage from './pages/RecipesPage';
-import SettingsPage from './pages/SettingsPage';
-import NavigationBar from './components/NavigationBar';
+import AlertsPage from "./pages/AlertsPage";
+import ShoppingListPage from "./pages/ShoppingListPage";
+import RecipesPage from "./pages/RecipesPage";
+import SettingsPage from "./pages/SettingsPage";
+import NavigationBar from "./components/NavigationBar";
 
-import { ShoppingListProvider } from './context/ShoppingListContext';
-import { AlertsProvider } from './context/AlertsContext';
-import { RecipesProvider } from './context/RecipesContext';
+
+import { ShoppingListProvider } from "./context/ShoppingListContext";
+import { AlertsProvider } from "./context/AlertsContext";
+import { RecipesProvider } from "./context/RecipesContext";
 import { ItemsProvider } from "./context/ItemsContext";
+
+import { BarcodesProvider } from "./context/BarcodesContext";
+import BarcodeScannerPage from "./pages/BarcodeScannerPage";
 
 function App() {
   return (
@@ -21,19 +27,24 @@ function App() {
       <AlertsProvider>
         <RecipesProvider>
           <ItemsProvider>
-            <Router>
-              {/* Navigation bar at the top */}
-              <NavigationBar />
+            <BarcodesProvider>
+              <Router>
+                {/* Navigation bar at the top */}
+                <NavigationBar />
 
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/alerts" element={<AlertsPage />} />
-                <Route path="/items" element={<ItemsPage />} />
-                <Route path="/shopping-list" element={<ShoppingListPage />} />
-                <Route path="/recipes" element={<RecipesPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-              </Routes>
-            </Router>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/alerts" element={<AlertsPage />} />
+                  <Route path="/items" element={<ItemsPage />} />
+                  <Route path="/shopping-list" element={<ShoppingListPage />} />
+                  <Route path="/recipes" element={<RecipesPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+
+                  {/* The new barcode scanning route */}
+                  <Route path="/scan-barcode" element={<BarcodeScannerPage />} />
+                </Routes>
+              </Router>
+            </BarcodesProvider>
           </ItemsProvider>
         </RecipesProvider>
       </AlertsProvider>

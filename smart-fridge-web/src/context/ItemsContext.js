@@ -4,6 +4,7 @@ import axios from "axios";
 export const ItemsContext = createContext();
 
 export const ItemsProvider = ({ children }) => {
+  
     const [items, setItems] = useState([]);
 
     const fetchItems = useCallback(async () => {
