@@ -1,3 +1,4 @@
+// server.js
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
@@ -15,57 +16,39 @@ const db = new sqlite3.Database("./smart-fridge.db", (err) => {
   console.log("Connected to the smart-fridge.db database.");
 });
 
-db.run(
-  `CREATE TABLE IF NOT EXISTS recipes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    cookTime TEXT,
-    ingredients TEXT
-  )`,
-  (err) => {
-    if (err) console.error("Error creating recipes table:", err.message);
-  }
-);
+// Create tables if not exist
+db.run(`CREATE TABLE IF NOT EXISTS recipes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  cookTime TEXT,
+  ingredients TEXT
+)`);
 
-db.run(
-  `CREATE TABLE IF NOT EXISTS alerts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    description TEXT,
-    date TEXT,
-    time TEXT,
-    checked INTEGER DEFAULT 0
-  )`,
-  (err) => {
-    if (err) console.error("Error creating alerts table:", err.message);
-  }
-);
+db.run(`CREATE TABLE IF NOT EXISTS alerts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT,
+  description TEXT,
+  date TEXT,
+  time TEXT,
+  checked INTEGER DEFAULT 0
+)`);
 
-db.run(
-  `CREATE TABLE IF NOT EXISTS shopping_list (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    quantity TEXT,
-    checked INTEGER DEFAULT 0
-  )`,
-  (err) => {
-    if (err) console.error("Error creating shopping_list table:", err.message);
-  }
-);
+db.run(`CREATE TABLE IF NOT EXISTS shopping_list (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  quantity TEXT,
+  checked INTEGER DEFAULT 0
+)`);
 
-db.run(
-  `CREATE TABLE IF NOT EXISTS fridge (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    quantity TEXT,
-    unit TEXT,
-    expiry DATE
-  )`,
-  (err) => {
-    if (err) console.error("Error creating fridge table:", err.message);
-  }
-);
+db.run(`CREATE TABLE IF NOT EXISTS fridge (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  quantity TEXT,
+  unit TEXT,
+  expiry TEXT
+)`);
 
+// ============ RECIPES ENDPOINTS ============
 app.get("/recipes", (req, res) => {
   db.all("SELECT * FROM recipes", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -109,6 +92,7 @@ app.delete("/recipes/:id", (req, res) => {
   });
 });
 
+// ============ ALERTS ENDPOINTS ============
 app.get("/alerts", (req, res) => {
   db.all("SELECT * FROM alerts", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -168,66 +152,69 @@ app.delete("/alerts/:id", (req, res) => {
   });
 });
 
-app.post("/inventory/upload", (req, res) => {
-  const { inventory } = req.body;
-  if (!inventory || !Array.isArray(inventory)) {
-    return res.status(400).json({ error: "Invalid inventory data format." });
-  }
-
-  const insertPromises = inventory.map((item) => {
-    const { name, count } = item;
-    const quantity = count?.toString() || "0";
-    const unit = "cnt.";
-    const expiry = "";
-
-    return new Promise((resolve, reject) => {
-      db.run(
-        `INSERT INTO fridge (name, quantity, unit, expiry) VALUES (?, ?, ?, ?)`,
-        [name, quantity, unit, expiry],
-        function (err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID, name, quantity, unit, expiry });
-        }
-      );
-    });
+// ============ SHOPPING LIST ENDPOINTS ============
+app.get("/shopping-list", (req, res) => {
+  db.all("SELECT * FROM shopping_list", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    const items = rows.map((row) => ({ ...row, checked: row.checked === 1 }));
+    res.json(items);
   });
-
-  Promise.all(insertPromises)
-    .then((results) => res.json({ success: true, itemsAdded: results.length }))
-    .catch((err) => {
-      console.error("Error inserting inventory items:", err);
-      res.status(500).json({ error: err.message });
-    });
 });
 
+app.post("/shopping-list", (req, res) => {
+  const { name, quantity } = req.body;
+  if (!name) return res.status(400).json({ error: "Item name is required" });
+  db.run(
+    `INSERT INTO shopping_list (name, quantity) VALUES (?, ?)`,
+    [name, quantity || ""],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({
+        id: this.lastID,
+        name,
+        quantity: quantity || "",
+        checked: false,
+      });
+    }
+  );
+});
+
+app.put("/shopping-list/:id", (req, res) => {
+  const { id } = req.params;
+  const { name, quantity, checked } = req.body;
+  const checkedValue = checked ? 1 : 0;
+  db.run(
+    `UPDATE shopping_list SET name = ?, quantity = ?, checked = ? WHERE id = ?`,
+    [name, quantity, checkedValue, id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: Number(id), name, quantity, checked });
+    }
+  );
+});
+
+app.delete("/shopping-list/:id", (req, res) => {
+  const { id } = req.params;
+  db.run(`DELETE FROM shopping_list WHERE id = ?`, [id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
+
+// ============ FRIDGE ENDPOINTS ============
 app.get("/fridge", (req, res) => {
   db.all("SELECT * FROM fridge", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-
-    const today = new Date();
-    const itemsWithExpiry = rows.map(item => {
-      if (!item.expiry) return { ...item, daysUntilExpiry: "No expiry set" };
-
-      const expiryDate = new Date(item.expiry);
-      const timeDiff = expiryDate - today;
-      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-      return { ...item, daysUntilExpiry: daysLeft >= 0 ? `${daysLeft} days left` : "Expired" };
-    });
-
-    res.json(itemsWithExpiry);
+    res.json(rows);
   });
 });
-
-
 
 app.post("/fridge", (req, res) => {
   const { name, quantity, unit, expiry } = req.body;
   if (!name) return res.status(400).json({ error: "Item name is required" });
-
   db.run(
     `INSERT INTO fridge (name, quantity, unit, expiry) VALUES (?, ?, ?, ?)`,
-    [name, quantity || "", unit || "", expiry ? new Date(expiry).toISOString().split("T")[0] : null],
+    [name, quantity || "", unit || "", expiry || ""],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID, name, quantity, unit, expiry });
@@ -235,21 +222,18 @@ app.post("/fridge", (req, res) => {
   );
 });
 
-
 app.put("/fridge/:id", (req, res) => {
   const { id } = req.params;
   const { name, quantity, unit, expiry } = req.body;
-  
   db.run(
     `UPDATE fridge SET name = ?, quantity = ?, unit = ?, expiry = ? WHERE id = ?`,
-    [name, quantity, unit, expiry ? new Date(expiry).toISOString().split("T")[0] : null, id],
+    [name, quantity, unit, expiry, id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: Number(id), name, quantity, unit, expiry });
     }
   );
 });
-
 
 app.delete("/fridge/:id", (req, res) => {
   const { id } = req.params;
@@ -259,34 +243,20 @@ app.delete("/fridge/:id", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5001;
-
-
-setInterval(() => {
-  console.log("Updating expiry tracking...");
+app.get("/items", (req, res) => {
   db.all("SELECT * FROM fridge", [], (err, rows) => {
-      if (err) return console.error("Error fetching items:", err);
-
-      const today = new Date();
-      rows.forEach(item => {
-          if (!item.expiry) return;
-
-          const expiryDate = new Date(item.expiry);
-          const timeDiff = expiryDate - today;
-          const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-          db.run(
-              `UPDATE fridge SET expiry = ? WHERE id = ?`,
-              [daysLeft < 0 ? "Expired" : item.expiry, item.id],
-              (updateErr) => {
-                  if (updateErr) console.error("Error updating expiry status:", updateErr);
-              }
-          );
-      });
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
   });
-}, 24 * 60 * 60 * 1000); // Run every 24 hours
+});
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// ============ EXTERNAL BARCODE LOOKUP ============
+app.get("/barcodes/lookup/:code", async (req, res) => {
+  let { code } = req.params;
+  try {
+    if (code.length === 13 && code.startsWith("0")) {
+      code = code.slice(1);
+    }
 
     const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`;
     const response = await axios.get(url);
