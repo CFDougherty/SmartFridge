@@ -1,7 +1,6 @@
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
-const axios = require("axios");
 
 const app = express();
 app.use(cors());
@@ -75,9 +74,7 @@ app.get("/recipes", (req, res) => {
 
 app.post("/recipes", (req, res) => {
   const { name, cookTime, ingredients } = req.body;
-  if (!name || !cookTime || !ingredients) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
+  if (!name || !cookTime || !ingredients) return res.status(400).json({ error: "Missing required fields" });
   db.run(
     `INSERT INTO recipes (name, cookTime, ingredients) VALUES (?, ?, ?)`,
     [name, cookTime, ingredients.join(", ")],
@@ -119,22 +116,13 @@ app.get("/alerts", (req, res) => {
 
 app.post("/alerts", (req, res) => {
   const { title, description, date, time } = req.body;
-  if (!title || !date || !time) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
+  if (!title || !date || !time) return res.status(400).json({ error: "Missing required fields" });
   db.run(
     `INSERT INTO alerts (title, description, date, time) VALUES (?, ?, ?, ?)`,
     [title, description, date, time],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: this.lastID,
-        title,
-        description,
-        date,
-        time,
-        checked: false,
-      });
+      res.json({ id: this.lastID, title, description, date, time, checked: false });
     }
   );
 });
@@ -148,14 +136,7 @@ app.put("/alerts/:id", (req, res) => {
     [title, description, date, time, checkedValue, id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: Number(id),
-        title,
-        description,
-        date,
-        time,
-        checked,
-      });
+      res.json({ id: Number(id), title, description, date, time, checked });
     }
   );
 });
@@ -168,36 +149,47 @@ app.delete("/alerts/:id", (req, res) => {
   });
 });
 
-app.post("/inventory/upload", (req, res) => {
-  const { inventory } = req.body;
-  if (!inventory || !Array.isArray(inventory)) {
-    return res.status(400).json({ error: "Invalid inventory data format." });
-  }
-
-  const insertPromises = inventory.map((item) => {
-    const { name, count } = item;
-    const quantity = count?.toString() || "0";
-    const unit = "cnt.";
-    const expiry = "";
-
-    return new Promise((resolve, reject) => {
-      db.run(
-        `INSERT INTO fridge (name, quantity, unit, expiry) VALUES (?, ?, ?, ?)`,
-        [name, quantity, unit, expiry],
-        function (err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID, name, quantity, unit, expiry });
-        }
-      );
-    });
+app.get("/shopping-list", (req, res) => {
+  db.all("SELECT * FROM shopping_list", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    const items = rows.map((row) => ({ ...row, checked: row.checked === 1 }));
+    res.json(items);
   });
+});
 
-  Promise.all(insertPromises)
-    .then((results) => res.json({ success: true, itemsAdded: results.length }))
-    .catch((err) => {
-      console.error("Error inserting inventory items:", err);
-      res.status(500).json({ error: err.message });
-    });
+app.post("/shopping-list", (req, res) => {
+  const { name, quantity } = req.body;
+  if (!name) return res.status(400).json({ error: "Item name is required" });
+  db.run(
+    `INSERT INTO shopping_list (name, quantity) VALUES (?, ?)`,
+    [name, quantity || ""],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: this.lastID, name, quantity: quantity || "", checked: false });
+    }
+  );
+});
+
+app.put("/shopping-list/:id", (req, res) => {
+  const { id } = req.params;
+  const { name, quantity, checked } = req.body;
+  const checkedValue = checked ? 1 : 0;
+  db.run(
+    `UPDATE shopping_list SET name = ?, quantity = ?, checked = ? WHERE id = ?`,
+    [name, quantity, checkedValue, id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: Number(id), name, quantity, checked });
+    }
+  );
+});
+
+app.delete("/shopping-list/:id", (req, res) => {
+  const { id } = req.params;
+  db.run(`DELETE FROM shopping_list WHERE id = ?`, [id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
 });
 
 app.get("/fridge", (req, res) => {
@@ -288,21 +280,12 @@ setInterval(() => {
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-    const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`;
-    const response = await axios.get(url);
-    const data = response.data;
 
-    if (!data || data.code !== "OK" || !data.items || data.items.length === 0) {
-      return res.json({ found: false, productName: "" });
+app.get("/items", (req, res) => {
+  db.all("SELECT * FROM fridge", [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
     }
-
-    const productName = data.items[0].title || "";
-    return res.json({ found: true, productName });
-  } catch (error) {
-    console.error("Error in external lookup:", error.message);
-    return res.json({ found: false, productName: "" });
-  }
+    res.json(rows);
+  });
 });
-
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
