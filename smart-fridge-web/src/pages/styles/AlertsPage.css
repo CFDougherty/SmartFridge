@@ -102,21 +102,6 @@
   background-color: #d9363e;
 }
 
-.react-time-picker__inputGroup__input {
-  text-align: center;
-  font-size: 15px;
-}
-
-.react-time-picker__inputGroup__amPm {
-  width: 4em;
-}
-
-
-.react-time-picker__inputGroup__divider {
-  margin: 0 0.2em;
-}
-
-
 .modal {
   position: fixed;
   top: 0;
@@ -142,6 +127,7 @@
   margin: 10px 0;
 }
 
+
 .modal-content input,
 .modal-content textarea {
   width: 100%;
@@ -166,7 +152,74 @@
   background-color: #ccc;
 }
 
+.modal-buttons button:first-child:hover {
+  background-color: #9f9e9e;
+}
+
 .modal-buttons button:last-child {
   background-color: #8c00ff;
   color: white;
+}
+
+.modal-buttons button:last-child:hover {
+  background-color: #5a00b3;
+}
+
+
+.react-time-picker {
+  width: 100%; 
+  height: fit-content; 
+  display: flex;
+  align-items: center;
+  padding: 0.2em;
+  gap: 5%; 
+  font-size: 1rem;
+}
+
+.react-time-picker__wrapper {
+  border: none; 
+  border-radius: 5px;
+  padding: 0.1em; 
+  display: flex; 
+  align-items: center; 
+  height: fit-content;
+  width: fit-content;
+  justify-content: space-evenly; 
+}
+
+.react-time-picker__inputGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.1em; 
+  font-size: 1rem;
+}
+
+.react-time-picker__inputGroup__input {
+  height: 2em;
+  width: 3em; 
+  text-align: center;
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+.react-time-picker__inputGroup__divider {
+  font-size: 1rem;
+  margin: 0 2%; 
+}
+
+.react-time-picker__inputGroup__amPm {
+  width: fit-content;
+  text-align: center;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.react-datepicker__input-container input {
+  text-align: center;
+  width: fit-content;
+  margin-left: 10px;
 }
