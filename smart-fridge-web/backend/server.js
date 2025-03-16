@@ -46,6 +46,7 @@ db.run(`CREATE TABLE IF NOT EXISTS fridge (
   expiry TEXT
 )`);
 
+// Recursively finds objects with { name: string, count: number/unit? }
 function parseNestedData(data, results = []) {
   if (Array.isArray(data)) {
     for (const element of data) {
@@ -66,6 +67,7 @@ function parseNestedData(data, results = []) {
   return results;
 }
 
+// ============ RECIPES ============
 app.get("/recipes", (req, res) => {
   db.all("SELECT * FROM recipes", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -75,7 +77,9 @@ app.get("/recipes", (req, res) => {
 
 app.post("/recipes", (req, res) => {
   const { name, cookTime, ingredients } = req.body;
-  if (!name || !cookTime || !ingredients) return res.status(400).json({ error: "Missing required fields" });
+  if (!name || !cookTime || !ingredients) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
   db.run(
     `INSERT INTO recipes (name, cookTime, ingredients) VALUES (?, ?, ?)`,
     [name, cookTime, ingredients.join(", ")],
@@ -107,6 +111,7 @@ app.delete("/recipes/:id", (req, res) => {
   });
 });
 
+// ============ ALERTS ============
 app.get("/alerts", (req, res) => {
   db.all("SELECT * FROM alerts", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -117,7 +122,9 @@ app.get("/alerts", (req, res) => {
 
 app.post("/alerts", (req, res) => {
   const { title, description, date, time } = req.body;
-  if (!title || !date || !time) return res.status(400).json({ error: "Missing required fields" });
+  if (!title || !date || !time) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
   db.run(
     `INSERT INTO alerts (title, description, date, time) VALUES (?, ?, ?, ?)`,
     [title, description, date, time],
@@ -150,6 +157,7 @@ app.delete("/alerts/:id", (req, res) => {
   });
 });
 
+// ============ SHOPPING LIST ============
 app.get("/shopping-list", (req, res) => {
   db.all("SELECT * FROM shopping_list", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -193,6 +201,7 @@ app.delete("/shopping-list/:id", (req, res) => {
   });
 });
 
+// ============ FRIDGE ============
 app.get("/fridge", (req, res) => {
   db.all("SELECT * FROM fridge", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -241,6 +250,7 @@ app.get("/items", (req, res) => {
   });
 });
 
+// ============ BARCODE LOOKUP ============
 app.get("/barcodes/lookup/:code", async (req, res) => {
   let { code } = req.params;
   try {
@@ -261,6 +271,41 @@ app.get("/barcodes/lookup/:code", async (req, res) => {
   }
 });
 
+// ============ INVENTORY UPLOAD (NESTED JSON) ============
+app.post("/inventory/upload", (req, res) => {
+  const { inventory } = req.body;
+  if (!inventory || !Array.isArray(inventory)) {
+    return res.status(400).json({ error: "Invalid inventory data format. Expecting { inventory: [ ... ] }" });
+  }
+  const itemsToInsert = inventory.map(obj => ({
+    name: obj.name,
+    quantity: obj.count?.toString() || "0",
+    unit: obj.unit || "",
+    expiry: ""
+  }));
+
+  const insertPromises = itemsToInsert.map((item) => {
+    return new Promise((resolve, reject) => {
+      db.run(
+        `INSERT INTO fridge (name, quantity, unit, expiry) VALUES (?, ?, ?, ?)`,
+        [item.name, item.quantity, item.unit, item.expiry],
+        function (err) {
+          if (err) reject(err);
+          else resolve({ id: this.lastID, ...item });
+        }
+      );
+    });
+  });
+
+  Promise.all(insertPromises)
+    .then(results => res.json({ success: true, itemsAdded: results.length, details: results }))
+    .catch(err => {
+      console.error("Error inserting inventory items:", err);
+      res.status(500).json({ error: err.message });
+    });
+});
+
+// ============ NESTED RANDOM JSON (Your parseNestedData) ============
 app.post("/random-json", async (req, res) => {
   try {
     const data = req.body;
@@ -271,7 +316,7 @@ app.post("/random-json", async (req, res) => {
     const insertPromises = items.map((item) => {
       const name = item.name;
       const quantity = item.count.toString();
-      const unit = item.unit;
+      const unit = item.unit || "";
       return new Promise((resolve, reject) => {
         db.run(
           `INSERT INTO fridge (name, quantity, unit, expiry) VALUES (?, ?, ?, ?)`,
@@ -295,6 +340,7 @@ app.post("/random-json", async (req, res) => {
   }
 });
 
+// OPTIONAL daily expiry update
 setInterval(() => {
   console.log("Updating expiry tracking...");
   db.all("SELECT * FROM fridge", [], (err, rows) => {

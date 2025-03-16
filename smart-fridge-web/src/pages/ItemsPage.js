@@ -1,4 +1,3 @@
-// src/pages/ItemsPage.js
 import React, { useState, useContext, useEffect } from "react";
 import { ItemsContext } from "../context/ItemsContext";
 import { useNavigate } from "react-router-dom";
@@ -7,54 +6,51 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const ItemsPage = () => {
-    const { items, fetchItems, addItem, updateItem, removeItem } = useContext(ItemsContext);
-    
-    const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({
-        id: null,
-        name: "",
-        quantity: "",
-        unit: "",
-        expiry: "",
-    });
+  const { items, fetchItems, addItem, updateItem, removeItem } = useContext(ItemsContext);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    id: null,
+    name: "",
+    quantity: "",
+    unit: "",
+    expiry: "",
+  });
 
-    useEffect(() => {
-        fetchItems();
-    }, [fetchItems]);
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
-    const openModal = (item = null) => {
-        setFormData(item ? item : { id: null, name: "", quantity: "", unit: "", expiry: "" });
-        setShowModal(true);
-    };
+  const openModal = (item = null) => {
+    setFormData(item ? item : { id: null, name: "", quantity: "", unit: "", expiry: "" });
+    setShowModal(true);
+  };
 
-    const closeModal = () => {
-        setShowModal(false);
-        setFormData({ id: null, name: "", quantity: "", unit: "", expiry: "" });
-    };
+  const closeModal = () => {
+    setShowModal(false);
+    setFormData({ id: null, name: "", quantity: "", unit: "", expiry: "" });
+  };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const handleDateSelect = (date) => {
-        setFormData((prev) => ({ ...prev, expiry: date.toISOString().split("T")[0] }));
-    };    
+  const handleDateSelect = (date) => {
+    setFormData((prev) => ({ ...prev, expiry: date.toISOString().split("T")[0] }));
+  };
 
-    const addOrUpdateItem = async () => {
-        if (!formData.name.trim()) return;
+  const addOrUpdateItem = async () => {
+    if (!formData.name.trim()) return;
+    if (formData.id) {
+      await updateItem(formData.id, { ...formData });
+    } else {
+      await addItem({ ...formData });
+      await fetchItems();
+    }
+    closeModal();
+  };
 
-        if (formData.id) {
-        await updateItem(formData.id, { ...formData });
-        } else {
-        await addItem({ ...formData });
-        await fetchItems();
-        }
-
-        closeModal();
-    };
-
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <div className="items-page">
@@ -64,15 +60,9 @@ const ItemsPage = () => {
         {items.map((item) => (
           <li key={item.id} className="item">
             <span onClick={() => openModal(item)} className="clickable">
-            {item.name} ({item.quantity} {item.unit}) - 
-            {item.daysUntilExpiry !== undefined && item.daysUntilExpiry !== null
-                ? ` Exp: ${item.daysUntilExpiry === "Expired" ? "Expired" : `${item.daysUntilExpiry}`}`
-                : " Exp: No expiry set"}
+              {item.name} ({item.quantity} {item.unit}){item.expiry ? ` - Exp: ${item.expiry}` : ""}
             </span>
-            <button
-              className="delete-button"
-              onClick={() => removeItem(item.id)}
-            >
+            <button className="delete-button" onClick={() => removeItem(item.id)}>
               x
             </button>
           </li>
@@ -80,14 +70,10 @@ const ItemsPage = () => {
       </ul>
 
       <div className="button-group">
-        {/* Both buttons now share the same styling */}
         <button className="add-item-button" onClick={() => openModal()}>
           + Add Item
         </button>
-        <button
-          className="add-item-button" // Same class as "Add Item" button
-          onClick={() => navigate("/scan-barcode")}
-        >
+        <button className="add-item-button" onClick={() => navigate("/scan-barcode")}>
           + Add via Barcode
         </button>
       </div>
@@ -96,7 +82,6 @@ const ItemsPage = () => {
         <div className="modal" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>{formData.id ? "Edit Item" : "Add Item"}</h2>
-
             <label>
               Item Name:
               <input
@@ -132,13 +117,12 @@ const ItemsPage = () => {
             </label>
 
             <label>
-                Expiration Date:
-                    {/*<input type="text" name="expiry" value={formData.expiry} onChange={handleInputChange} />*/}
-                    <DatePicker
-                        selected={formData.expiry ? new Date(formData.expiry) : null}
-                        onChange={handleDateSelect}
-                        dateFormat="yyyy-MM-dd"
-                    />
+              Expiration Date:
+              <DatePicker
+                selected={formData.expiry ? new Date(formData.expiry) : null}
+                onChange={handleDateSelect}
+                dateFormat="yyyy-MM-dd"
+              />
             </label>
 
             <div className="modal-buttons">
