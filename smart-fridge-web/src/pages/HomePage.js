@@ -5,6 +5,7 @@ import { RecipesContext } from "../context/RecipesContext";
 import { ItemsContext } from "../context/ItemsContext";
 import "./styles/HomePage.css";
 import { useNavigate } from "react-router-dom";
+import backgroundImg from "../assets/background.jpg";
 
 const HomePage = () => {
   const { items } = useContext(ItemsContext);
@@ -18,7 +19,7 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="home-container">
+    <div className="home-container" style={{ backgroundImage: `url(${backgroundImg})` }}>
       <h1 className="home-header">Friday, Nov. 1</h1>
       <div className="grid-container">
         <div className="card" onClick={() => navigate("/items")}>
@@ -65,12 +66,6 @@ const HomePage = () => {
               </li>
             ))}
           </ul>
-        </div>
-      </div>
-      <div className="progress-container">
-        <p>60% Full</p>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: "60%" }}></div>
         </div>
       </div>
     </div>
