@@ -1,7 +1,8 @@
 .recipes-header {
   text-align: center;
   color: #333;
-  margin-top: 20px;
+  margin-top: 60px;
+  font-size: 50px;
 }
 
 .recipes-container {
@@ -16,14 +17,17 @@
 .search-form {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 10px;
   margin-bottom: 10px;
   padding: 10px;
+  flex-wrap: nowrap;
 }
 
 .search-form input {
   padding: 10px;
-  width: 70%;
+  flex: 1;
+  max-width: 60%;
   border: 1px solid #ddd;
   border-radius: 5px;
 }
@@ -36,6 +40,7 @@
   font-weight: bold;
   border-radius: 5px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .recipes-list {
@@ -46,14 +51,22 @@
 }
 
 .recipe-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; 
   background: white;
   padding: 10px;
   border-radius: 10px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
   border: 1px solid #ddd;
-  width: 90%;
+  width: 100%;
   margin: 10px auto;
+  height: 100%; 
+}
+
+.recipe-card h3 {
+  flex-grow: 1;  
 }
 
 .recipe-card img {
@@ -69,8 +82,8 @@
   font-size: 17px;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 10px;
   transition: background-color 0.3s ease;
+  margin-top: auto; 
 }
 
 .recipes-list::-webkit-scrollbar {
@@ -84,16 +97,20 @@
 
 .recipes-section {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
   justify-content: center;
   padding: 20px;
+  width: 90%;
+  padding-bottom: 10%;
 }
 
 @media (max-width: 768px) {
   .search-form {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    flex-wrap: nowrap;
+    width: 97%;
   }
 
   .search-form input {
@@ -106,6 +123,7 @@
 }
 
 .modal-content {
+  position: fixed;
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -113,11 +131,11 @@
   max-width: 80%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  max-height: 80vh;
+  max-height: 100vh;
 }
 
 .modal {
-  position: absolute;
+  position: fixed;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -126,5 +144,9 @@
   width: 100vw;
   background: rgba(0, 0, 0, 0.5);
   z-index: 9999;
+}
+
+.recipes-subheader{
+  text-align: center;
 }
 
