@@ -41,7 +41,7 @@
     border-radius: 5px;
     cursor: pointer;
     padding: 10px 15px;
-    font-size: 16px;
+    font-size: 20px;
     transition: background-color 0.3s ease;
     margin-left: 10px;
 }
@@ -66,6 +66,24 @@
 .add-item-button:hover {
     background-color: #5a00b3;
 }
+
+.scan-fridge-button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 24px;
+    color: white;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.scan-fridge-button:hover {
+    background-color: #45a049;
+}
+
 
 .modal {
     position: fixed;
