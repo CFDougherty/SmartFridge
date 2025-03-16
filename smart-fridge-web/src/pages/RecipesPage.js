@@ -4,7 +4,8 @@ import { useSpring, animated } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
 import "./styles/RecipesPage.css";
 
-const apiKey = "c08f534cb986424b9ff1a361957362f2";
+const apiKey = "6dacd1bf57fc4f27be8752284f04b8cd";
+//const apiKey = "c08f534cb986424b9ff1a361957362f2";
 
 const RecipesPage = () => {
   const { recipes, addRecipe, updateRecipe, removeRecipe } = useContext(RecipesContext);
@@ -181,7 +182,7 @@ const RecipesPage = () => {
                   onClick={(e) => e.stopPropagation()} 
               >
                   <h2>{selectedRecipe.title}</h2>
-                  <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.title} />
+                  <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.title} draggable="false"/>
                   <p><strong>Ingredients:</strong></p>
                   <ul>
                       {selectedRecipe.extendedIngredients?.map((ingredient, index) => (
