@@ -21,7 +21,7 @@ Managing fridge ingredients manually is tedious and often leads to food waste,
 expired items, and inefficient meal planning. Current solutions are too expensive or 
 lack automation, making tracking and meal preparation frustrating for consumers.
 
-Our AI Smart Fridge project project automates ingredient monitoring, expiration 
+Our AI Smart Fridge project automates ingredient monitoring, expiration 
 tracking, and recipe suggestions. By combining IoT and machine learning, it reduces 
 food waste, generates shopping lists, alerts users to low stock, and simplifies meal 
 planning—all in one seamless system.
