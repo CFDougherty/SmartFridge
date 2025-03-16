@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useContext, useRef } from "react";
 import { RecipesContext } from "../context/RecipesContext";
 import { useSpring, animated } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
 import "./styles/RecipesPage.css";
 
-const apiKey = "6dacd1bf57fc4f27be8752284f04b8cd";
+const apiKey = "c08f534cb986424b9ff1a361957362f2";
 
 const RecipesPage = () => {
   const { recipes, addRecipe, updateRecipe, removeRecipe } = useContext(RecipesContext);
@@ -23,6 +23,14 @@ const RecipesPage = () => {
   useEffect(() => {
     fetchRandomRecipes();
   }, []);
+
+  useLayoutEffect(() => {
+    if (selectedRecipe) {
+      const scrollY = window.scrollY || window.pageYOffset;
+      setModalTop(`${scrollY + window.innerHeight / 2}px`);
+    }
+  }, [selectedRecipe]);
+  
 
   const fetchRandomRecipes = async () => {
     try {
@@ -49,17 +57,20 @@ const RecipesPage = () => {
     }
   };
 
+  const [modalTop, setModalTop] = useState("50%");
+
   const showRecipeDetails = async (recipeId) => {
-    try {
-      const response = await fetch(
-        `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}`
-      );
-      const data = await response.json();
-      setSelectedRecipe(data);
-    } catch (error) {
-      console.error("Error fetching recipe details:", error);
-    }
+      try {
+          const response = await fetch(
+              `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}`
+          );
+          const data = await response.json();
+          setSelectedRecipe(data);
+      } catch (error) {
+          console.error("Error fetching recipe details:", error);
+      }
   };
+
 
   const closeRecipeDetails = () => {
     setSelectedRecipe(null);
@@ -135,18 +146,18 @@ const RecipesPage = () => {
       </div>
 
       
-        <div className="recipes-section">
+      <div className="recipes-section">
           {apiRecipes.map((recipe) => (
             <div key={recipe.id} className="recipe-card">
-              <img src={recipe.image} alt={recipe.title} />
+              <img src={recipe.image} alt={recipe.title} draggable="false"/>
               <h3>{recipe.title}</h3>
               <button onClick={() => showRecipeDetails(recipe.id)}>View Recipe</button>
             </div>
           ))}
-        </div>
+      </div>
 
-        <h2 className="recipes-subheader">My Saved Recipes</h2>
-        <div className="recipes-grid">
+      <h2 className="recipes-subheader">My Saved Recipes</h2>
+      <div className="recipes-grid">
           {recipes.map((recipe) => (
             <div key={recipe.id} className="recipe-card">
               <h3>{recipe.name}</h3>
@@ -158,34 +169,34 @@ const RecipesPage = () => {
               </div>
             </div>
           ))}
-        </div>
+      </div>
       
 
       {selectedRecipe && (
-        <div className="modal" onClick={closeRecipeDetails}>
-          <animated.div 
-            ref={modalScrollRef} 
-            className="modal-content" 
-            {...modalBind()} 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ transform: my.to((val) => `translateY(${val}px)`) }}
-          >
-            <h2>{selectedRecipe.title}</h2>
-            <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.title} />
-            <p><strong>Ingredients:</strong></p>
-            <ul>
-              {selectedRecipe.extendedIngredients?.map((ingredient, index) => (
-                <li key={index}>{ingredient.original}</li>
-              ))}
-            </ul>
-            <p><strong>Instructions:</strong></p>
-            <div dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }} />
-            <button onClick={closeRecipeDetails}>Close</button>
-          </animated.div>
-        </div>
+          <div className="modal" onClick={closeRecipeDetails}>
+              <animated.div 
+                  ref={modalScrollRef} 
+                  className="modal-content" 
+                  {...modalBind()} 
+                  onClick={(e) => e.stopPropagation()} 
+              >
+                  <h2>{selectedRecipe.title}</h2>
+                  <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.title} />
+                  <p><strong>Ingredients:</strong></p>
+                  <ul>
+                      {selectedRecipe.extendedIngredients?.map((ingredient, index) => (
+                          <li key={index}>{ingredient.original}</li>
+                      ))}
+                  </ul>
+                  <p><strong>Instructions:</strong></p>
+                  <div dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }} />
+                  <button onClick={closeRecipeDetails}>Close</button>
+              </animated.div>
+          </div>
       )}
-      </animated.div>
 
+
+      </animated.div>
     </div>
   );
 };
