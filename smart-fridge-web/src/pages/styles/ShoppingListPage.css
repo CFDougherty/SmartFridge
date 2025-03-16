@@ -37,6 +37,9 @@
   margin-right: 10px;
   cursor: pointer;
   transform: scale(1.2);
+  width: 20px;
+  height: 20px;
+
 }
 
 .shopping-list-name {
@@ -56,7 +59,7 @@
   border-radius: 5px;
   cursor: pointer;
   padding: 10px 15px;
-  font-size: 16px;
+  font-size: 20px;
   transition: background-color 0.3s ease;
 }
 
