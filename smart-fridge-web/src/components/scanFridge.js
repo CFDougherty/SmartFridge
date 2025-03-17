@@ -23,7 +23,7 @@ export async function scanFridge() {
                     content: [
                         {
                             type: "text",
-                            text: "Identify and list groceries in this image in JSON format. The root key should be titled 'inventory' and contain objects with 'name', 'count', and 'unit'."
+                            text: "Identify and list groceries in this image in JSON format. The root key should be titled 'inventory' and contain 3 other key/value pairs, called 'name', 'count' and 'unit'. For example, Milk might have a count of 1, and a unit of Gallon. Please also ensure that the first letter of each word is capitalized."
                         },
                         {
                             type: "image_url",
