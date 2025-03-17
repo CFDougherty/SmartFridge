@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./styles/ItemsPage.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { scanFridge } from "../components/scanFridge";
 
 const ItemsPage = () => {
   const { items, fetchItems, addItem, updateItem, removeItem } = useContext(ItemsContext);
@@ -52,31 +53,22 @@ const ItemsPage = () => {
 
   const navigate = useNavigate();
 
-  const scanFridge = async () => {
+  const scanFridgeAndUpdate = async () => {
       document.getElementById("scan-status").innerText = "Scanning...";
-      try {
-          let response = await fetch("/scan", { method: "POST" });
-          let data = await response.json();
 
-          if (data.error) {
-              document.getElementById("scan-status").innerText = "Error: " + data.error;
-          } else {
-              document.getElementById("scan-status").innerText = "Scan Complete!";
-              console.log("Scanned Items:", data);
+      const data = await scanFridge();
 
-              if (data.inventory && Array.isArray(data.inventory)) {
-                data.inventory.forEach((item) => {
-                  if (item.name && item.count && item.unit) {
-                    addItem({ name: item.name, quantity: item.count, unit: item.unit });
-                  }
-                });
-              } else {
-                console.error("Invalid API response format:", data);
-                document.getElementById("scan-status").innerText = "Error: Invalid response from AI";
-              }              
+      if (data.error) {
+          document.getElementById("scan-status").innerText = "Error: " + data.error;
+      } else {
+          document.getElementById("scan-status").innerText = "Scan Complete!";
+          console.log("Scanned Items:", data);
+
+          if (data.inventory) {
+              data.inventory.forEach((item) => {
+                  addItem({ name: item.name, quantity: item.count, unit: item.unit });
+              });
           }
-      } catch (error) {
-          document.getElementById("scan-status").innerText = "Error: " + error.message;
       }
   };
 
@@ -105,7 +97,7 @@ const ItemsPage = () => {
         <button className="add-item-button" onClick={() => navigate("/scan-barcode")}>
           + Add via Barcode
         </button>
-        <button className="scan-fridge-button" onClick={scanFridge}>
+        <button className="scan-fridge-button" onClick={scanFridgeAndUpdate}>
           Scan Fridge
         </button>
 <p id="scan-status"></p>
