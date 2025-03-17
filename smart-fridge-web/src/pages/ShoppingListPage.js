@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { ShoppingListContext } from "../context/ShoppingListContext";
 import "./styles/ShoppingListPage.css";
+import backgroundImg from "../assets/background.jpg";
 
 const ShoppingListPage = () => {
   const { shoppingListItems, addItem, updateItem, removeItem } = useContext(ShoppingListContext);
@@ -56,7 +57,7 @@ const ShoppingListPage = () => {
   };
 
   return (
-    <div className="shopping-list-page">
+    <div className="shopping-list-page" style={{ backgroundImage: `url(${backgroundImg})` }}>
       <h1 className="shopping-list-title">Shopping List</h1>
       <ul className="shopping-list">
         {shoppingListItems.map((item) => (
