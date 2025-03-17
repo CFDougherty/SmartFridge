@@ -5,6 +5,7 @@ import "./styles/ItemsPage.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { scanFridge } from "../components/scanFridge";
+import backgroundImg from "../assets/background.jpg";
 
 const ItemsPage = () => {
   const { items, fetchItems, addItem, updateItem, removeItem } = useContext(ItemsContext);
@@ -85,7 +86,7 @@ const ItemsPage = () => {
   };
 
   return (
-    <div className="items-page">
+    <div className="items-page" style={{ backgroundImage: `url(${backgroundImg})` }}>
       <h1 className="items-title">Items in Fridge</h1>
 
       <ul className="item-list">
