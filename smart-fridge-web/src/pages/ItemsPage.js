@@ -16,6 +16,7 @@ const ItemsPage = () => {
     unit: "",
     expiry: "",
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchItems();
@@ -51,27 +52,37 @@ const ItemsPage = () => {
     closeModal();
   };
 
-  const navigate = useNavigate();
-
+  // Scan fridge, clear existing fridge data first, then add scanned items
   const scanFridgeAndUpdate = async () => {
-      document.getElementById("scan-status").innerText = "Scanning...";
-
-      const data = await scanFridge();
-
-      if (data.error) {
-          document.getElementById("scan-status").innerText = "Error: " + data.error;
-      } else {
-          document.getElementById("scan-status").innerText = "Scan Complete!";
-          console.log("Scanned Items:", data);
-
-          if (data.inventory) {
-              data.inventory.forEach((item) => {
-                  addItem({ name: item.name, quantity: item.count, unit: item.unit });
-              });
-          }
+    document.getElementById("scan-status").innerText = "Scanning...";
+    try {
+      // Clear the fridge using the new endpoint
+      const clearResponse = await fetch("http://localhost:5001/fridge/clear", { method: "DELETE" });
+      if (!clearResponse.ok) {
+        throw new Error("Failed to clear fridge data");
       }
-  };
+      await fetchItems();
 
+      // Now scan the fridge using the scanFridge function
+      const data = await scanFridge();
+      if (data.error) {
+        document.getElementById("scan-status").innerText = "Error: " + data.error;
+      } else {
+        document.getElementById("scan-status").innerText = "Scan Complete!";
+        console.log("Scanned Items:", data);
+        if (data.inventory) {
+          // Add each scanned item to the database
+          for (const item of data.inventory) {
+            await addItem({ name: item.name, quantity: item.count, unit: item.unit });
+          }
+          await fetchItems();
+        }
+      }
+    } catch (error) {
+      console.error("Scan error:", error);
+      document.getElementById("scan-status").innerText = "Error: " + error.message;
+    }
+  };
 
   return (
     <div className="items-page">
@@ -81,7 +92,8 @@ const ItemsPage = () => {
         {items.map((item) => (
           <li key={item.id} className="item">
             <span onClick={() => openModal(item)} className="clickable">
-              {item.name} ({item.quantity} {item.unit}){item.expiry ? ` - Exp: ${item.expiry}` : ""}
+              {item.name} ({item.quantity} {item.unit})
+              {item.expiry ? ` - Exp: ${item.expiry}` : ""}
             </span>
             <button className="delete-button" onClick={() => removeItem(item.id)}>
               x
@@ -100,8 +112,7 @@ const ItemsPage = () => {
         <button className="scan-fridge-button" onClick={scanFridgeAndUpdate}>
           Scan Fridge
         </button>
-<p id="scan-status"></p>
-
+        <p id="scan-status"></p>
       </div>
 
       {showModal && (
@@ -110,28 +121,13 @@ const ItemsPage = () => {
             <h2>{formData.id ? "Edit Item" : "Add Item"}</h2>
             <label>
               Item Name:
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-              />
+              <input type="text" name="name" value={formData.name} onChange={handleInputChange} />
             </label>
-
             <label>
               Quantity & Unit:
               <div className="input-group">
-                <input
-                  type="text"
-                  name="quantity"
-                  value={formData.quantity}
-                  onChange={handleInputChange}
-                />
-                <select
-                  name="unit"
-                  value={formData.unit}
-                  onChange={handleInputChange}
-                >
+                <input type="text" name="quantity" value={formData.quantity} onChange={handleInputChange} />
+                <select name="unit" value={formData.unit} onChange={handleInputChange}>
                   <option value="">Unit</option>
                   <option value="lb.">Pounds (lb.)</option>
                   <option value="oz.">Ounces (oz.)</option>
@@ -141,7 +137,6 @@ const ItemsPage = () => {
                 </select>
               </div>
             </label>
-
             <label>
               Expiration Date:
               <DatePicker
@@ -150,12 +145,9 @@ const ItemsPage = () => {
                 dateFormat="yyyy-MM-dd"
               />
             </label>
-
             <div className="modal-buttons">
               <button onClick={closeModal}>Cancel</button>
-              <button onClick={addOrUpdateItem}>
-                {formData.id ? "Save" : "Add"}
-              </button>
+              <button onClick={addOrUpdateItem}>{formData.id ? "Save" : "Add"}</button>
             </div>
           </div>
         </div>

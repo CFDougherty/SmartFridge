@@ -2,7 +2,7 @@ const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 const axios = require("axios");
-const fetch = require("node-fetch");
+const fetch = require("node-fetch"); 
 
 const app = express();
 app.use(cors());
@@ -47,6 +47,24 @@ db.run(`CREATE TABLE IF NOT EXISTS fridge (
   unit TEXT,
   expiry TEXT
 )`);
+
+// Clear alerts and fridge tables on startup (for demo purposes)
+db.run("DELETE FROM alerts", (err) => {
+  if (err) console.error("Error clearing alerts:", err.message);
+  else console.log("Alerts table cleared on startup.");
+});
+db.run("DELETE FROM fridge", (err) => {
+  if (err) console.error("Error clearing fridge contents:", err.message);
+  else console.log("Fridge table cleared on startup.");
+});
+
+// NEW: Endpoint to clear fridge items (for overwriting on scan)
+app.delete("/fridge/clear", (req, res) => {
+  db.run("DELETE FROM fridge", (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
 
 // ============ RECIPES ENDPOINTS ============
 app.get("/recipes", (req, res) => {
@@ -253,25 +271,36 @@ app.get("/barcodes/lookup/:code", async (req, res) => {
   }
 });
 
+// ============ CAMERA IMAGE ENDPOINT (with fallback testing) ============
 app.get("/camera-image", async (req, res) => {
   try {
-      const response = await fetch("http://picam.local:5000/image.jpg");
-      if (!response.ok) throw new Error("Failed to fetch image from camera");
-
-      const buffer = await response.buffer();
-      res.set("Content-Type", "image/jpeg");
-      res.send(buffer);
+    const CAMERA_URL = "http://picam.local:5000/image.jpg";
+    let response = await fetch(CAMERA_URL).catch(() => null);
+    if (!response || !response.ok) {
+      // Fallback: Use a local placeholder image (as a Base64 string)
+      const fallbackBase64 =
+        "iVBORw0KGgoAAAANSUhEUgAAAAUA"+
+        "AAAFCAYAAACNbyblAAAAHElEQVQI12P4"+
+        "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
+      const buffer = Buffer.from(fallbackBase64, "base64");
+      res.set("Content-Type", "image/png");
+      return res.send(buffer);
+    }
+    const buffer = await response.buffer();
+    res.set("Content-Type", "image/jpeg");
+    res.send(buffer);
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
+// OPTIONAL daily expiry update
 setInterval(() => {
   console.log("Updating expiry tracking...");
   db.all("SELECT * FROM fridge", [], (err, rows) => {
     if (err) return console.error("Error fetching items:", err);
     const today = new Date();
-    rows.forEach(item => {
+    rows.forEach((item) => {
       if (!item.expiry) return;
       const expiryDate = new Date(item.expiry);
       const timeDiff = expiryDate - today;
