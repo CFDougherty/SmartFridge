@@ -51,6 +51,8 @@ export async function scanFridge() {
         const responseData = await openaiResponse.json();
         let detectedItems = responseData?.choices?.[0]?.message?.content || "{}";
 
+        detectedItems = detectedItems.replace(/^```\n/, "").replace(/\n```$/, "");
+
         try {
             return JSON.parse(detectedItems);
         } catch (error) {
