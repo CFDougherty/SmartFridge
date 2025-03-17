@@ -3,7 +3,7 @@ const GPT_VISION_API_URL = "https://api.openai.com/v1/chat/completions";
 
 export async function scanFridge() {
     try {
-        const CAMERA_URL = "http://picam.local:5000/image.jpg";
+        const CAMERA_URL = "http://localhost:5001/camera-image";
         const response = await fetch(CAMERA_URL);
         if (!response.ok) throw new Error("Failed to fetch image from camera");
 
