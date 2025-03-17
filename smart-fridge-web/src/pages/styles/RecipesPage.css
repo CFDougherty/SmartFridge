@@ -1,6 +1,6 @@
 .recipes-header {
   text-align: center;
-  color: #333;
+  color: white;
   margin-top: 60px;
   font-size: 50px;
 }
@@ -36,7 +36,7 @@
 
 .search-form button {
   padding: 10px;
-  background-color: #8c00ff;
+  background-color: #5900a1;
   border: none;
   color: white;
   padding: 12px 10px;
@@ -45,6 +45,10 @@
   border-radius: 5px;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.search-form button:hover {
+  background-color: #4a0087;
 }
 
 .recipes-list {
@@ -79,7 +83,7 @@
 }
 
 .recipe-card button {
-  background-color: #8c00ff;
+  background-color: #5900a1;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -88,6 +92,10 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
   margin-top: auto; 
+}
+
+.recipe-card button:hover {
+  background-color: #4a0087;
 }
 
 .recipes-list::-webkit-scrollbar {
@@ -152,5 +160,6 @@
 
 .recipes-subheader{
   text-align: center;
+  color: white;
 }
 
