@@ -6,6 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
 import "./styles/AlertsPage.css";
+import backgroundImg from "../assets/background.jpg";
 
 const AlertsPage = () => {
   const { alerts, addAlert, updateAlert, removeAlert } =
@@ -112,7 +113,7 @@ const AlertsPage = () => {
   };
 
   return (
-    <div className="alerts-page">
+    <div className="alerts-page" style={{ backgroundImage: `url(${backgroundImg})` }}>
       <h1 className="alerts-title">Alerts</h1>
 
       <div className="date-navigation">
