@@ -137,6 +137,30 @@ const RecipesPage = () => {
 
   return (
     <div className="recipes-container">
+
+      {selectedRecipe && (
+          <div className="modal" onClick={closeRecipeDetails}>
+              <animated.div 
+                  ref={modalScrollRef} 
+                  className="modal-content" 
+                  {...modalBind()} 
+                  onClick={(e) => e.stopPropagation()} 
+              >
+                  <h2>{selectedRecipe.title}</h2>
+                  <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.title} draggable="false"/>
+                  <p><strong>Ingredients:</strong></p>
+                  <ul>
+                      {selectedRecipe.extendedIngredients?.map((ingredient, index) => (
+                          <li key={index}>{ingredient.original}</li>
+                      ))}
+                  </ul>
+                  <p><strong>Instructions:</strong></p>
+                  <div dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }} />
+                  <button onClick={closeRecipeDetails}>Close</button>
+              </animated.div>
+          </div>
+      )}
+      
       <animated.div ref={scrollRef} className="recipes-scrollable" {...bind()} style={{ transform: y.to((val) => `translateY(${val}px)`) }}>
       <h1 className="recipes-header">Recipes</h1>
 
@@ -173,28 +197,7 @@ const RecipesPage = () => {
       </div>
       
 
-      {selectedRecipe && (
-          <div className="modal" onClick={closeRecipeDetails}>
-              <animated.div 
-                  ref={modalScrollRef} 
-                  className="modal-content" 
-                  {...modalBind()} 
-                  onClick={(e) => e.stopPropagation()} 
-              >
-                  <h2>{selectedRecipe.title}</h2>
-                  <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.title} draggable="false"/>
-                  <p><strong>Ingredients:</strong></p>
-                  <ul>
-                      {selectedRecipe.extendedIngredients?.map((ingredient, index) => (
-                          <li key={index}>{ingredient.original}</li>
-                      ))}
-                  </ul>
-                  <p><strong>Instructions:</strong></p>
-                  <div dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }} />
-                  <button onClick={closeRecipeDetails}>Close</button>
-              </animated.div>
-          </div>
-      )}
+      
 
 
       </animated.div>
