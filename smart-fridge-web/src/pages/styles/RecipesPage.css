@@ -30,6 +30,8 @@
   max-width: 60%;
   border: 1px solid #ddd;
   border-radius: 5px;
+  padding: 12px 10px;
+  font-size: 17px;
 }
 
 .search-form button {
@@ -37,6 +39,8 @@
   background-color: #8c00ff;
   border: none;
   color: white;
+  padding: 12px 10px;
+  font-size: 17px;
   font-weight: bold;
   border-radius: 5px;
   cursor: pointer;
