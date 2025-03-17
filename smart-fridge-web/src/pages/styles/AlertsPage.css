@@ -9,7 +9,7 @@
 
 .alerts-title {
   text-align: center;
-  color: #333;
+  color: white;
   margin-top: 20px;
 }
 
@@ -21,7 +21,7 @@
 }
 
 .date-navigation button {
-  background-color: #8c00ff;
+  background-color: #5900a1;
   border: none;
   color: white;
   padding: 10px 15px;
@@ -33,14 +33,14 @@
 }
 
 .date-navigation button:hover {
-  background-color: #5a00b3;
+  background-color: #4a0087;
 }
 
 .date-navigation p {
   font-size: 24px;
   font-weight: bold;
   margin: 0;
-  color: #333;
+  color: white;
 }
 
 .alerts-list {
@@ -78,7 +78,7 @@
   padding: 10px 20px;
   font-size: 24px;
   color: white;
-  background-color: #8c00ff;
+  background-color: #5900a1;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -86,7 +86,7 @@
 }
 
 .add-button:hover {
-  background-color: #5a00b3;
+  background-color: #4a0087;
 }
 
 .delete-button {
