@@ -7,7 +7,7 @@ else
     echo "Missing credentials.env"
     exit 1
 fi
-if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_PASSWORD" ] || [ -z "$REPO_URL" ]; then
+if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_PASSWORD" ] || [ -z "$REPO_URL" ] || [ -z "$OPENAI_API_KEY" ]; then
     echo "Could not load credentials"
     exit 1
 fi
@@ -20,6 +20,8 @@ rm -rf CS-Capstone/
 echo "Cloning"
 git clone "$REPO_URL"
 wait
+
+echo "REACT_APP_OPENAI_API_KEY=$OPENAI_API_KEY" > ~/CS-Capstone/smart-fridge-web/.env
 
 cd ~/CS-Capstone/smart-fridge-web || exit
 
