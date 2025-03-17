@@ -8,7 +8,7 @@
 
 .shopping-list-title {
   text-align: center;
-  color: #333;
+  color: #ffffff;
   margin-top: 20px;
 }
 
@@ -68,6 +68,23 @@
   background-color: #d9363e;
 }
 
+.add-item-button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 24px;
+  color: white;
+  background-color: #28a745;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-item-button:hover {
+  background-color: #1e7e34;
+}
+
 .place-order-button {
   display: block;
   margin: 20px auto;
@@ -95,7 +112,7 @@
   padding: 10px 20px;
   font-size: 24px;
   color: white;
-  background-color: #8c00ff;
+  background-color: #1e0238;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -103,10 +120,9 @@
 }
 
 .auto-add-button:hover {
-  background-color: #5a00b3;
+  background-color: #000000;
 }
 
-/* Modal (Popup) Styles */
 .modal {
   position: fixed;
   top: 0;
