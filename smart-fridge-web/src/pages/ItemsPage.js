@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { ItemsContext } from "../context/ItemsContext";
 import { useNavigate } from "react-router-dom";
 import "./styles/ItemsPage.css";
@@ -6,6 +6,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { scanFridge } from "../components/scanFridge";
 import backgroundImg from "../assets/background.jpg";
+import { useSpring, animated } from "@react-spring/web";
+import { useGesture } from "@use-gesture/react";
 
 const ItemsPage = () => {
   const { items, fetchItems, addItem, updateItem, removeItem } = useContext(ItemsContext);
@@ -85,37 +87,24 @@ const ItemsPage = () => {
     }
   };
 
+  //additions for scrolling
+  const scrollRef = useRef();
+  const modalScrollRef = useRef();
+  const [{ y }, set] = useSpring(() => ({ y: 0 }));
+
+  const bind = useGesture(
+      {
+        onDrag: ({ offset: [, my] }) => {
+          set({ y: my });
+        },
+      },
+      { drag: { axis: "y", rubberband: false } }
+  );
+
   return (
     <div className="items-page" style={{ backgroundImage: `url(${backgroundImg})` }}>
-      <h1 className="items-title">Items in Fridge</h1>
 
-      <ul className="item-list">
-        {items.map((item) => (
-          <li key={item.id} className="item">
-            <span onClick={() => openModal(item)} className="clickable">
-              {item.name} ({item.quantity} {item.unit})
-              {item.expiry ? ` - Exp: ${item.expiry}` : ""}
-            </span>
-            <button className="delete-button" onClick={() => removeItem(item.id)}>
-              x
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      <div className="button-group">
-        <button className="add-item-button" onClick={() => openModal()}>
-          + Add Item
-        </button>
-        <button className="add-item-button" onClick={() => navigate("/scan-barcode")}>
-          + Add via Barcode
-        </button>
-        <button className="scan-fridge-button" onClick={scanFridgeAndUpdate}>
-          Scan Fridge
-        </button>
-        <p id="scan-status"></p>
-      </div>
-
+    
       {showModal && (
         <div className="modal" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -153,6 +142,37 @@ const ItemsPage = () => {
           </div>
         </div>
       )}
+
+      <animated.div ref={scrollRef} className="recipes-scrollable" {...bind()} style={{ transform: y.to((val) => `translateY(${val}px)`) }}>
+      <h1 className="items-title">Items in Fridge</h1>
+
+      <ul className="item-list">
+        {items.map((item) => (
+          <li key={item.id} className="item">
+            <span onClick={() => openModal(item)} className="clickable">
+              {item.name} ({item.quantity} {item.unit})
+              {item.expiry ? ` - Exp: ${item.expiry}` : ""}
+            </span>
+            <button className="delete-button" onClick={() => removeItem(item.id)}>
+              x
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <div className="button-group">
+        <button className="add-item-button" onClick={() => openModal()}>
+          + Add Item
+        </button>
+        <button className="add-item-button" onClick={() => navigate("/scan-barcode")}>
+          + Add via Barcode
+        </button>
+        <button className="scan-fridge-button" onClick={scanFridgeAndUpdate}>
+          Scan Fridge
+        </button>
+        <p id="scan-status"></p>
+      </div>
+      </animated.div>
     </div>
   );
 };
