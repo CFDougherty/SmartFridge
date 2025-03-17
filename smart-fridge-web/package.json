@@ -2,6 +2,7 @@
   "name": "smart-fridge-web",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://picam.local:5000",
   "dependencies": {
     "@react-spring/web": "^9.7.5",
     "@testing-library/jest-dom": "^5.17.0",
