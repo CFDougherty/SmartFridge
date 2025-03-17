@@ -9,6 +9,7 @@
 .settings-header {
   text-align: center;
   margin-bottom: 20px;
+  color: white;
 }
 
 .settings-options {
@@ -22,14 +23,15 @@
   padding: 25px 20px;
   border-bottom: 1px solid #ccc;
   cursor: pointer;
+  color: white;
 }
 
 .settings-option:hover {
-  background-color: #f8f8f8;
+  background-color: #440381;
 }
 
 .arrow {
-  color: #888;
+  color: #ffffff;
   font-size: 30px;
 }
 
