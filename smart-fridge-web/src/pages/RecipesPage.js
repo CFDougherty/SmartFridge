@@ -3,6 +3,8 @@ import { RecipesContext } from "../context/RecipesContext";
 import { useSpring, animated } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
 import "./styles/RecipesPage.css";
+import backgroundImg from "../assets/background.jpg";
+
 
 const apiKey = "6dacd1bf57fc4f27be8752284f04b8cd";
 //const apiKey = "c08f534cb986424b9ff1a361957362f2";
@@ -136,7 +138,7 @@ const RecipesPage = () => {
   );
 
   return (
-    <div className="recipes-container">
+    <div className="recipes-container" style={{ backgroundImage: `url(${backgroundImg})` }}>
 
       {selectedRecipe && (
           <div className="modal" onClick={closeRecipeDetails}>
