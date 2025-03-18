@@ -1,4 +1,4 @@
-const OPENAI_API_KEY = "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";
+const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 const GPT_VISION_API_URL = "https://api.openai.com/v1/chat/completions";
 
 export async function scanFridge() {
