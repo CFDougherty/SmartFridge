@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Remove .env file on exit. Protect OAI API keys
+cleanup() {
+    echo "Cleaning up..."
+    rm -f ~/CS-Capstone/smart-fridge-web/.env
+    echo "Removed .env file"
+    exit 0
+}
+
 # Load credentials from ~/credentials.env
 if [ -f ~/credentials.env ]; then
     source ~/credentials.env
@@ -21,6 +29,7 @@ echo "Cloning"
 git clone "$REPO_URL"
 wait
 
+#Copy in the OAI API key to the root web folder. Need a better way... But will work well enough for now
 echo "REACT_APP_OPENAI_API_KEY=$OPENAI_API_KEY" > ~/CS-Capstone/smart-fridge-web/.env
 
 cd ~/CS-Capstone/smart-fridge-web || exit
@@ -39,6 +48,8 @@ x-terminal-emulator -e bash -c "
   npm run start;
   exec bash
   " &
+FRONTEND_PID=$!
+
 
 # Wait. Pi is not fast. 
 sleep 4
@@ -53,3 +64,6 @@ x-terminal-emulator -e bash -c "
 " &
 
 echo "Done"
+# If frontend process is ended, then run cleanup to remove credentials
+wait $FRONTEND_PID
+cleanup
