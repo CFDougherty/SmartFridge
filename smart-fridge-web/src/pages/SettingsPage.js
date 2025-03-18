@@ -1,36 +1,62 @@
+.settings-container {
+  padding: 40px;
+  font-family: Arial, sans-serif;
+  background-color: white;
+  height: 100vh;
+  font-size: 24px;
+}
 
-import React from "react";
-import "./styles/SettingsPage.css";
-import backgroundImg from "../assets/background.jpg";
+.settings-header {
+  text-align: center;
+  margin-bottom: 20px;
+  color: white;
+}
 
-const SettingsPage = () => {
-  const settingsOptions = [
-    "Language",
-    "Notifications",
-    "Font Size",
-    "Brightness",
-    "Screen Timeout",
-    "Diet Restrictions",
-    "Payment Preference",
-  ];
+.settings-options {
+  border-top: 1px solid #ccc;
+}
 
-  return (
-    <div className="settings-container" style={{ backgroundImage: `url(${backgroundImg})` }}>
-      <h1 className="settings-header">Settings</h1>
-      <div className="settings-options">
-        {settingsOptions.map((option, index) => (
-          <div key={index} className="settings-option">
-            <span>{option}</span>
-            <span className="arrow">›</span>
-          </div>
-        ))}
-      </div>
-      <button className="connect-button">
-        <span>Connect to Mobile App</span>
-        <span className="qr-icon">📱</span>
-      </button>
-    </div>
-  );
-};
+.settings-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 20px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+  color: white;
+}
 
-export default SettingsPage;
+.settings-option:hover {
+  background-color: #3b016a;
+}
+
+.arrow {
+  color: #ffffff;
+  font-size: 30px;
+}
+
+.connect-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 30px auto 0;
+  padding: 15px 20px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 24px;
+  width: 100%;
+  height: 80px;
+  max-width: 350px;
+}
+
+.connect-button:hover {
+  background-color: #333;
+}
+
+.qr-icon {
+  margin-left: 10px;
+  font-size: 1.5rem;
+}
