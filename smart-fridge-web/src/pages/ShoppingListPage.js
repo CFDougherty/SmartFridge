@@ -1,7 +1,9 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { ShoppingListContext } from "../context/ShoppingListContext";
 import "./styles/ShoppingListPage.css";
 import backgroundImg from "../assets/background.jpg";
+import { useSpring, animated } from "@react-spring/web";
+import { useGesture } from "@use-gesture/react";
 
 const ShoppingListPage = () => {
   const { shoppingListItems, addItem, updateItem, removeItem } = useContext(ShoppingListContext);
@@ -56,25 +58,24 @@ const ShoppingListPage = () => {
     alert("Order placed!");
   };
 
+  //additions for scrolling
+    const scrollRef = useRef();
+    const modalScrollRef = useRef();
+    const [{ y }, set] = useSpring(() => ({ y: 0 }));
+  
+    const bind = useGesture(
+        {
+          onDrag: ({ offset: [, my] }) => {
+            set({ y: my });
+          },
+        },
+        { drag: { axis: "y", rubberband: false } }
+    );
+
+
   return (
     <div className="shopping-list-page" style={{ backgroundImage: `url(${backgroundImg})` }}>
-      <h1 className="shopping-list-title">Shopping List</h1>
-      <ul className="shopping-list">
-        {shoppingListItems.map((item) => (
-          <li key={item.id} className="shopping-list-item">
-            <input type="checkbox" checked={item.checked || false} onChange={() => toggleItemChecked(item.id)} />
-            <span className="shopping-list-name" onClick={() => openModal(item)} style={{ cursor: "pointer" }}>
-              {item.name}
-            </span>
-            <span className="shopping-list-quantity">({item.quantity})</span>
-            <button className="delete-button" onClick={() => removeItem(item.id)}>x</button>
-          </li>
-        ))}
-      </ul>
 
-      <button className="add-item-button" onClick={() => openModal()}>+ Add Item</button>
-      <button className="place-order-button" onClick={placeOrder}>Place Order</button>
-      <button className="auto-add-button" onClick={toggleAutoAdd}>{autoAdd ? "Auto-Add Enabled" : "Auto-Add Disabled"}</button>
 
       {showModal && (
         <div className="modal" onClick={closeModal}>
@@ -95,6 +96,29 @@ const ShoppingListPage = () => {
           </div>
         </div>
       )}
+
+
+      <animated.div ref={scrollRef} className="recipes-scrollable" {...bind()} style={{ transform: y.to((val) => `translateY(${val}px)`) }}>
+      <h1 className="shopping-list-title">Shopping List</h1>
+      <ul className="shopping-list">
+        {shoppingListItems.map((item) => (
+          <li key={item.id} className="shopping-list-item">
+            <input type="checkbox" checked={item.checked || false} onChange={() => toggleItemChecked(item.id)} />
+            <span className="shopping-list-name" onClick={() => openModal(item)} style={{ cursor: "pointer" }}>
+              {item.name}
+            </span>
+            <span className="shopping-list-quantity">({item.quantity})</span>
+            <button className="delete-button" onClick={() => removeItem(item.id)}>x</button>
+          </li>
+        ))}
+      </ul>
+
+      <button className="add-item-button" onClick={() => openModal()}>+ Add Item</button>
+      <button className="place-order-button" onClick={placeOrder}>Place Order</button>
+      
+      </animated.div>
+
+      <button className="auto-add-button" onClick={toggleAutoAdd}>{autoAdd ? "Auto-Add Enabled" : "Auto-Add Disabled"}</button>
     </div>
   );
 };
