@@ -12,6 +12,10 @@
   flex-direction: column;
   background-color: white;
   overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
 }
 
 .search-form {
@@ -36,7 +40,7 @@
 
 .search-form button {
   padding: 10px;
-  background-color: #5900a1;
+  background-color: #3b016a;
   border: none;
   color: white;
   padding: 12px 10px;
@@ -48,7 +52,7 @@
 }
 
 .search-form button:hover {
-  background-color: #4a0087;
+  background-color: #23003f;
 }
 
 .recipes-list {
@@ -83,7 +87,7 @@
 }
 
 .recipe-card button {
-  background-color: #5900a1;
+  background-color: #3b016a;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -95,7 +99,7 @@
 }
 
 .recipe-card button:hover {
-  background-color: #4a0087;
+  background-color: #23003f;
 }
 
 .recipes-list::-webkit-scrollbar {
