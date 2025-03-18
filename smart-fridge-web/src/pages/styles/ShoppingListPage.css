@@ -4,6 +4,10 @@
   padding:40px;
   height: 100vh;
   font-size: 24px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
 }
 
 .shopping-list-title {
@@ -74,7 +78,7 @@
   padding: 10px 20px;
   font-size: 24px;
   color: white;
-  background-color: #28a745;
+  background-color: #3b016a;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -82,7 +86,7 @@
 }
 
 .add-item-button:hover {
-  background-color: #1e7e34;
+  background-color: #23003f;
 }
 
 .place-order-button {
@@ -91,7 +95,7 @@
   padding: 10px 20px;
   font-size: 24px;
   color: white;
-  background-color: #28a745;
+  background-color: #3b016a;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -99,7 +103,7 @@
 }
 
 .place-order-button:hover {
-  background-color: #1e7e34;
+  background-color: #23003f;
 }
 
 .auto-add-button {
@@ -126,7 +130,6 @@
 .modal {
   position: fixed;
   top: 0;
-  left: 0;
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
