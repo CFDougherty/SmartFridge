@@ -42,7 +42,7 @@ create an efficient kitchen management system. Below are the design consideratio
 **Hardware Integration:**
 - Camera: Captures images of fridge contents for inventory tracking using image classification.
 - Load Cell Sensors: Measure ingredient weight changes to track usage.
-- Display: Provides an interactive interface for users to view inventory, create and order shopping lists, follow recipes, and schedule alerts directly on the fridge door.
+- Display: Provides an interactive interface for users to view inventory, create shopping lists, follow recipes, and schedule alerts directly on the fridge door.
   
 **Software Components:**
 - Front (React): Provide an interface for viewing inventory, editing items, searching recipes, and editing alert/shopping lists.
