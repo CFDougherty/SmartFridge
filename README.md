@@ -32,7 +32,6 @@ planning—all in one seamless system.
 - **Expiration Monitoring:** Alerts users about soon-to-expire items to minimize waste.
 - **Meal Suggestions:** Proposes meals based on available ingredients, dietary restrictions, and expiration rankings.
 - **Shopping List:** Automatically builds a shopping list for low-stock items.
-- **Integration with Delivery Services:** Enables users to order groceries directly from services like Instacart.
 
 
 ## Design Details
