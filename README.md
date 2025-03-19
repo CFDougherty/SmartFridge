@@ -113,7 +113,8 @@ https://www.figma.com/proto/wWFdGDr48QXB2gG65yrl4t/Fridge-Display-Wireframe?node
 - Camera
 - Display
 - Load Cell
-- Python Libraries: OpenCV, PyTorch, SQLite3
+- Python Libraries: SQLite3
+- OpenAI 4o API key & tokens
 
 # Installation steps
 $ Download and run build_project.sh in ~/
