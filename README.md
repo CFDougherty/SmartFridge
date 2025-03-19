@@ -116,9 +116,8 @@ https://www.figma.com/proto/wWFdGDr48QXB2gG65yrl4t/Fridge-Display-Wireframe?node
 - Python Libraries: OpenCV, PyTorch, SQLite3
 
 # Installation steps
-$ git clone https://github.com/SnowDrifterr/CS-Capstone.git
-$ cd CS-Capstone
-$ npm install #or any other relevant command
+$ Download and run build_project.sh in ~/
+$ Ensure that ~/credentials.env are present
 
 
 ## Configuration
