@@ -51,10 +51,9 @@ create an efficient kitchen management system. Below are the design consideratio
 - API Integrations:
   - UPCItemDB for barcode lookup.
   - Spoonacular for recipe searching and suggestions.
+  - OpenAI for image processing
 - Fridge Display Software: Tracks inventory in the fridge, receives low-stock or expiration alerts, suggests recipes, and provides a shopping list with ordering options.
 - Mobile/Web App: Tracks inventory remotely, receives low-stock or expiration alerts, suggests recipes, and provides a shopping list with ordering options.
-- Machine Learning Models: Uses OpenCV for image preprocessing and PyTorch for building, training, and testing deep learning models for ingredient recognition.
-- API Integrations: Connects to delivery services like Instacart for grocery shopping automation. Connects to an extensive recipe database. 
 
 # User Interface:
 **Key Features:**
