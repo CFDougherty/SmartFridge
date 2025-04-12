@@ -1,5 +1,26 @@
 #!/bin/bash
 
+SCRIPT_SOURCE=~/CS-Capstone/build_project.sh
+SCRIPT_TARGET=~/build_project.sh
+RUN_SOURCE=~/CS-Capstone/run_project.sh
+RUN_TARGET=~/run_project.sh
+
+# Copy over build and run scripts
+if [[ "$(realpath "$0")" == "$(realpath "$SCRIPT_SOURCE")" ]]; then
+    echo "Copying project scripts to home directory..."
+    cp "$SCRIPT_SOURCE" "$SCRIPT_TARGET"
+    cp "$RUN_SOURCE" "$RUN_TARGET"
+    chmod +x "$SCRIPT_TARGET" "$RUN_TARGET"
+    echo "Re-running from $SCRIPT_TARGET..."
+    exec "$SCRIPT_TARGET"
+    exit 0
+else
+    echo "Updating script copies from CS-Capstone..."
+    cp "$SCRIPT_SOURCE" "$SCRIPT_TARGET"
+    cp "$RUN_SOURCE" "$RUN_TARGET"
+    chmod +x "$SCRIPT_TARGET" "$RUN_TARGET"
+fi
+
 # Remove .env file on exit. Protect OAI API keys
 cleanup() {
     echo "Cleaning up..."
