@@ -8,6 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 const db = new sqlite3.Database("./smart-fridge.db", (err) => {
   if (err) {
     console.error("Database connection error:", err.message);
@@ -21,8 +22,12 @@ db.run(`CREATE TABLE IF NOT EXISTS recipes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT,
   cookTime TEXT,
-  ingredients TEXT
+  ingredients TEXT,
+  image TEXT,
+  instructions TEXT
 )`);
+
+
 
 db.run(`CREATE TABLE IF NOT EXISTS alerts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,7 +63,7 @@ db.run("DELETE FROM fridge", (err) => {
   else console.log("Fridge table cleared on startup.");
 });
 
-// NEW: Endpoint to clear fridge items (for overwriting on scan)
+
 app.delete("/fridge/clear", (req, res) => {
   db.run("DELETE FROM fridge", (err) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -75,31 +80,57 @@ app.get("/recipes", (req, res) => {
 });
 
 app.post("/recipes", (req, res) => {
-  const { name, cookTime, ingredients } = req.body;
+  const { name, cookTime, ingredients, image, instructions } = req.body;
   if (!name || !cookTime || !ingredients)
     return res.status(400).json({ error: "Missing required fields" });
+
+  const ingredientsStr = Array.isArray(ingredients)
+  ? ingredients.join(", ")
+  : ingredients;
+  
+
   db.run(
-    `INSERT INTO recipes (name, cookTime, ingredients) VALUES (?, ?, ?)`,
-    [name, cookTime, ingredients.join(", ")],
+    `INSERT INTO recipes (name, cookTime, ingredients, image, instructions) VALUES (?, ?, ?, ?, ?)`,
+    [name, cookTime, ingredientsStr, image || "", instructions || ""],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID, name, cookTime, ingredients });
+      res.json({ 
+        id: this.lastID, 
+        name, 
+        cookTime, 
+        ingredients: ingredientsStr.split(","),
+        image: image || "",
+        instructions: instructions || "" });
     }
   );
 });
 
+
 app.put("/recipes/:id", (req, res) => {
   const { id } = req.params;
-  const { name, cookTime, ingredients } = req.body;
+  const { name, cookTime, ingredients, image, instructions } = req.body;
+  
+  const ingredientsStr = Array.isArray(ingredients)
+    ? ingredients.join(", ")
+    : ingredients;
   db.run(
-    `UPDATE recipes SET name = ?, cookTime = ?, ingredients = ? WHERE id = ?`,
-    [name, cookTime, ingredients.join(", "), id],
+    `UPDATE recipes SET name = ?, cookTime = ?, ingredients = ?, image = ?, instruction = ?, WHERE id = ?`,
+    [name, cookTime, ingredientsStr, image || "" , instructions || "",  id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: Number(id), name, cookTime, ingredients });
+      res.json({
+        id: Number(id),
+        name,
+        cookTime,
+        ingredients: ingredientsStr.split(","),
+        image: image || "",
+        instructions: instructions || ""
+      });
     }
   );
 });
+
+
 
 app.delete("/recipes/:id", (req, res) => {
   const { id } = req.params;
