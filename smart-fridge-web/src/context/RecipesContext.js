@@ -14,18 +14,22 @@ export const RecipesProvider = ({ children }) => {
       .catch((err) => console.error("Error fetching recipes:", err));
   }, []);
 
-  const addRecipe = async ({ name, cookTime, ingredients }) => {
+  const addRecipe = async ({ name, cookTime, ingredients, image = "", instructions ="" }) => {
     try {
       const res = await axios.post("http://localhost:5001/recipes", {
         name,
         cookTime,
         ingredients,
+        image,
+        instructions
       });
       setRecipes((prev) => [...prev, res.data]);
     } catch (err) {
       console.error("Error adding recipe:", err);
     }
   };
+
+
 
   const updateRecipe = async (id, { name, cookTime, ingredients }) => {
     try {

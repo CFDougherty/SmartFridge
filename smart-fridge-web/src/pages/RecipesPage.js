@@ -23,9 +23,7 @@ const RecipesPage = () => {
   const modalScrollRef = useRef(); // Reference for modal scrolling
   const [{ y }, set] = useSpring(() => ({ y: 0 }));
 
-  useEffect(() => {
-    fetchRandomRecipes();
-  }, []);
+  //useEffect(() => {fetchRandomRecipes();}, []);
 
   useLayoutEffect(() => {
     if (selectedRecipe) {
@@ -41,11 +39,29 @@ const RecipesPage = () => {
         `https://api.spoonacular.com/recipes/random?apiKey=${apiKey}&number=10`
       );
       const data = await response.json();
-      setApiRecipes(data.recipes || []);
+    console.log("Complete API response:", data); // Log the complete response
+    console.log("data.recipes field:", data.recipes); // Log just the recipes field
+      const transformedRecipes = (data.recipes || []).map((recipe) => ({
+        name: recipe.title,
+        cookTime: recipe.readyInMinutes? `${recipe.readyInMinutes} minutes` : "",
+        ingredients: recipe.extendedIngredients
+          ?recipe.extendedIngredients.map((ing) => ing.original)
+          :[],
+          image: recipe.image || "",
+          instructions: recipe.instructions || ""
+      }));
+      setApiRecipes(transformedRecipes);
+      return transformedRecipes;
     } catch (error) {
       console.error("Error fetching random recipes:", error);
     }
   };
+  const handleShowMoreAndStore = async() => {
+    const recipes = await fetchRandomRecipes();
+    for (const recipe of recipes){
+      await addRecipe(recipe);
+    }
+  }
 
   const searchRecipes = async () => {
     if (!query.trim()) return;
@@ -59,6 +75,7 @@ const RecipesPage = () => {
       console.error("Error fetching recipes:", error);
     }
   };
+
 
   const [modalTop, setModalTop] = useState("50%");
 
@@ -169,10 +186,11 @@ const RecipesPage = () => {
       <div className="search-form">
         <input type="text" placeholder="Search for recipes..." value={query} onChange={(e) => setQuery(e.target.value)} />
         <button onClick={searchRecipes}>Search</button>
+        <button className="show-more-button" onClick={handleShowMoreAndStore}>Show More</button>
         <button className="add-recipe-button" onClick={handleAddNewClick}>+ Add Recipe</button>
+        
       </div>
 
-      
       <div className="recipes-section">
           {apiRecipes.map((recipe) => (
             <div key={recipe.id} className="recipe-card">
