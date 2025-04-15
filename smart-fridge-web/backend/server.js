@@ -17,7 +17,6 @@ const db = new sqlite3.Database("./smart-fridge.db", (err) => {
   console.log("Connected to the smart-fridge.db database.");
 });
 
-// Create tables if not exist
 db.run(`CREATE TABLE IF NOT EXISTS recipes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT,
@@ -73,11 +72,23 @@ app.delete("/fridge/clear", (req, res) => {
 
 // ============ RECIPES ENDPOINTS ============
 app.get("/recipes", (req, res) => {
-  db.all("SELECT * FROM recipes", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
+  let sql = "SELECT * FROM recipes";
+  let params = [];
+
+  if(req.query.search){
+    sql += " WHERE name LIKE ? OR ingredients LIKE ?";
+    const searchTerm = `%${req.query.search}%`;
+    params.push(searchTerm, searchTerm);
+
+    db.all(sql, params, (err, rows) => {
+      if(err){ return res.status(500).json({error: err.message})}
+      res.json(rows);
+
+    })
+
+  }
 });
+
 
 app.post("/recipes", (req, res) => {
   const { name, cookTime, ingredients, image, instructions } = req.body;

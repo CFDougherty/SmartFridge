@@ -23,6 +23,8 @@ const RecipesPage = () => {
   const modalScrollRef = useRef(); // Reference for modal scrolling
   const [{ y }, set] = useSpring(() => ({ y: 0 }));
 
+  const [modalTop, setModalTop] = useState("50%");
+
   //useEffect(() => {fetchRandomRecipes();}, []);
 
   useLayoutEffect(() => {
@@ -39,9 +41,8 @@ const RecipesPage = () => {
         `https://api.spoonacular.com/recipes/random?apiKey=${apiKey}&number=10`
       );
       const data = await response.json();
-    console.log("Complete API response:", data); // Log the complete response
-    console.log("data.recipes field:", data.recipes); // Log just the recipes field
       const transformedRecipes = (data.recipes || []).map((recipe) => ({
+        id : recipe.id,
         name: recipe.title,
         cookTime: recipe.readyInMinutes? `${recipe.readyInMinutes} minutes` : "",
         ingredients: recipe.extendedIngredients
@@ -63,6 +64,7 @@ const RecipesPage = () => {
     }
   }
 
+
   const searchRecipes = async () => {
     if (!query.trim()) return;
     try {
@@ -76,8 +78,23 @@ const RecipesPage = () => {
     }
   };
 
+  const searchLocalRecipes = async () => {
+    if(!query.trim()) return;
+    try{
+      const res = await fetch(
+        `http://localhost:5001/recipes?search=${encodeURIComponent(query)}`
+      );
+      const data = await res.json();
+      setApiRecipes(data);
+    }catch(err){
+      console.error("Error searching local recipes:", err);
+    }
+  
+  }
 
-  const [modalTop, setModalTop] = useState("50%");
+
+
+  
 
   const showRecipeDetails = async (recipeId) => {
       try {
@@ -92,15 +109,24 @@ const RecipesPage = () => {
   };
 
 
+  const viewSavedRecipe = (recipe) => {
+    setSelectedRecipe(recipe);
+  };
+
+  
+
+
   const closeRecipeDetails = () => {
     setSelectedRecipe(null);
   };
 
   const handleAddNewClick = () => {
     setEditingId(null);
-    setFormData({ name: "", cookTime: "", ingredients: "" });
+    setFormData({ name: "", cookTime: "", ingredients: "", image: "", instructions: "" });
     setShowModal(true);
   };
+
+
 
   const handleEditClick = (recipe) => {
     setEditingId(recipe.id);
@@ -108,9 +134,13 @@ const RecipesPage = () => {
       name: recipe.name,
       cookTime: recipe.cookTime,
       ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients.join(", ") : recipe.ingredients,
+      image: recipe.image || "",
+      instructions: recipe.instructions || ""
     });
     setShowModal(true);
   };
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -186,36 +216,37 @@ const RecipesPage = () => {
       <div className="search-form">
         <input type="text" placeholder="Search for recipes..." value={query} onChange={(e) => setQuery(e.target.value)} />
         <button onClick={searchRecipes}>Search</button>
-        <button className="show-more-button" onClick={handleShowMoreAndStore}>Show More</button>
+        <button className="show-more-button" onClick={handleShowMoreAndStore}>Show More Recipe</button>
         <button className="add-recipe-button" onClick={handleAddNewClick}>+ Add Recipe</button>
-        
+        <button onClick={searchLocalRecipes}>Search Local</button>
       </div>
 
       <div className="recipes-section">
           {apiRecipes.map((recipe) => (
             <div key={recipe.id} className="recipe-card">
               <img src={recipe.image} alt={recipe.title} draggable="false"/>
-              <h3>{recipe.title}</h3>
+              <h3>{recipe.name || recipe.title}</h3>
               <button onClick={() => showRecipeDetails(recipe.id)}>View Recipe</button>
             </div>
           ))}
       </div>
 
+
+
       <h2 className="recipes-subheader">My Saved Recipes</h2>
-      <div className="recipes-grid">
+      <div className="recipes-section">
           {recipes.map((recipe) => (
-            <div key={recipe.id} className="recipe-card">
+            <div key={recipe.id} className="recipe-card small-card">
+              {recipe.image ? (
+                <img src={recipe.image} alt={recipe.name} draggable="false"/>
+              ): (
+                <div className="placeholder-iamge">No Image</div>
+              )}
               <h3>{recipe.name}</h3>
-              <p>Cook Time: {recipe.cookTime}</p>
-              <p>Ingredients: {Array.isArray(recipe.ingredients) ? recipe.ingredients.join(", ") : recipe.ingredients}</p>
-              <div className="card-buttons">
-                <button onClick={() => handleEditClick(recipe)}>Edit</button>
-                <button onClick={() => handleDelete(recipe.id)}>Delete</button>
-              </div>
+              <button onClick={() => viewSavedRecipe(recipe)}>View Recipe</button>
             </div>
           ))}
       </div>
-      
 
       
 
