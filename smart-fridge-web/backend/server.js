@@ -20,12 +20,11 @@ const db = new sqlite3.Database("./smart-fridge.db", (err) => {
 db.run(`CREATE TABLE IF NOT EXISTS recipes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT,
-  cookTime TEXT,
+  readyInMinutes INTEGER,
   ingredients TEXT,
   image TEXT,
   instructions TEXT
 )`);
-
 
 
 db.run(`CREATE TABLE IF NOT EXISTS alerts (
@@ -72,67 +71,73 @@ app.delete("/fridge/clear", (req, res) => {
 
 // ============ RECIPES ENDPOINTS ============
 app.get("/recipes", (req, res) => {
-  let sql = "SELECT * FROM recipes";
-  let params = [];
+  let sql = "SELECT * FROM recipes"
+  const params = []
 
-  if(req.query.search){
-    sql += " WHERE name LIKE ? OR ingredients LIKE ?";
-    const searchTerm = `%${req.query.search}%`;
-    params.push(searchTerm, searchTerm);
+  if (req.query.search) {
+    const terms = req.query.search
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean)
 
-    db.all(sql, params, (err, rows) => {
-      if(err){ return res.status(500).json({error: err.message})}
-      res.json(rows);
-
-    })
-
+    if (terms.length) {
+      const clauses = terms.map(() => "(name LIKE ? OR ingredients LIKE ?)").join(" AND ")
+      sql += " WHERE " + clauses
+      terms.forEach(t => {
+        params.push(`%${t}%`)
+        params.push(`%${t}%`)
+      })
+    }
   }
-});
+
+  db.all(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message })
+    res.json(rows)
+  })
+})
+
 
 
 app.post("/recipes", (req, res) => {
-  const { name, cookTime, ingredients, image, instructions } = req.body;
-  if (!name || !cookTime || !ingredients)
+  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   // <-- changed
+  if (!name || readyInMinutes == null || !ingredients)                           // <-- changed
     return res.status(400).json({ error: "Missing required fields" });
 
-  const ingredientsStr = Array.isArray(ingredients)
-  ? ingredients.join(", ")
-  : ingredients;
-  
+  const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ") : ingredients;
 
   db.run(
-    `INSERT INTO recipes (name, cookTime, ingredients, image, instructions) VALUES (?, ?, ?, ?, ?)`,
-    [name, cookTime, ingredientsStr, image || "", instructions || ""],
+    `INSERT INTO recipes (name, readyInMinutes, ingredients, image, instructions) VALUES (?, ?, ?, ?, ?)`, // <-- changed
+    [name, readyInMinutes, ingredientsStr, image || "", instructions || ""],                              // <-- changed
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ 
-        id: this.lastID, 
-        name, 
-        cookTime, 
+      res.json({
+        id: this.lastID,
+        name,
+        readyInMinutes,                                                          // <-- changed
         ingredients: ingredientsStr.split(","),
         image: image || "",
-        instructions: instructions || "" });
+        instructions: instructions || ""
+      });
     }
   );
 });
 
 
+
 app.put("/recipes/:id", (req, res) => {
   const { id } = req.params;
-  const { name, cookTime, ingredients, image, instructions } = req.body;
-  
-  const ingredientsStr = Array.isArray(ingredients)
-    ? ingredients.join(", ")
-    : ingredients;
+  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   // <-- changed
+
+  const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ") : ingredients;
   db.run(
-    `UPDATE recipes SET name = ?, cookTime = ?, ingredients = ?, image = ?, instruction = ?, WHERE id = ?`,
-    [name, cookTime, ingredientsStr, image || "" , instructions || "",  id],
+    `UPDATE recipes SET name = ?, readyInMinutes = ?, ingredients = ?, image = ?, instructions = ? WHERE id = ?`, // <-- changed & fixed typo
+    [name, readyInMinutes, ingredientsStr, image || "", instructions || "", id],                                    // <-- changed
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({
         id: Number(id),
         name,
-        cookTime,
+        readyInMinutes,                                                        // <-- changed
         ingredients: ingredientsStr.split(","),
         image: image || "",
         instructions: instructions || ""
