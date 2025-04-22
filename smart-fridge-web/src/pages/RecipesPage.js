@@ -129,7 +129,11 @@ const RecipesPage = () => {
   }
 
   const handleSubmit = () => {
-    if (!formData.name.trim()) return
+    if (!formData.name.trim()) {
+      alert("Recipe name cannot be empty.")
+      return;
+
+    }
     const ingArray = formData.ingredients.split(",").map(i => i.trim()).filter(i => i)
     const payload = {
       name: formData.name,
@@ -137,10 +141,23 @@ const RecipesPage = () => {
       ingredients: ingArray,
       image: formData.image,
       instructions: formData.instructions
+    };
+    if(!editingId){
+      addRecipe(payload);
+    }else{
+      updateRecipe(editingId, payload);
     }
-    editingId ? updateRecipe(editingId, payload) : addRecipe(payload)
     setShowModal(false)
   }
+
+
+
+  const handleClearSearch = () => {
+    setApiRecipes([]);
+    setQuery("");
+  }
+
+  
 
   const handleDelete = id => removeRecipe(id)
 
@@ -194,11 +211,16 @@ const RecipesPage = () => {
         <h1 className="recipes-header">Recipes</h1>
         <div className="search-form">
           <input type="text" placeholder="Search for recipes..." value={query} onChange={e => setQuery(e.target.value)} />
+          <div className="search-buttons">
           <button onClick={searchRecipes}>Search Remote</button>
           <button onClick={searchLocalRecipes}>Search Local</button>
-          <button className="show-more-button" onClick={handleShowMoreAndStore}>Show More Recipe</button>
+          <button onClick={handleClearSearch}>Clear Results</button> 
+          <button className="show-more-button" onClick={handleShowMoreAndStore}>Discover New Recipes</button>
           <button className="add-recipe-button" onClick={handleAddNewClick}>+ Add Recipe</button>
+          </div>
         </div>
+
+        
 
         <div className="recipes-section">
           {apiRecipes.map(recipe => (
@@ -213,7 +235,7 @@ const RecipesPage = () => {
           ))}
         </div>
 
-        <h2 className="recipes-subheader">My Saved Recipes</h2>
+        <h2 className="recipes-subheader">All Recipes</h2>
         <div className="recipes-section">
           {recipes.map(recipe => (
             <div key={recipe.id} className="recipe-card small-card">
