@@ -2,11 +2,16 @@
   padding: 20px;
   font-family: Arial, sans-serif;
   text-align: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
 }
 
 .home-header {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+  font-size: 50px;
+  color: #ffffff;
+  margin-bottom: 40px;
 }
 
 .grid-container {
@@ -16,7 +21,7 @@
 }
 
 .card {
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -35,25 +40,6 @@
 
 .card li {
   margin: 5px 0;
-}
-
-.progress-container {
-  margin-top: 20px;
-  text-align: left;
-}
-
-.progress-bar {
-  background-color: #ccc;
-  border-radius: 10px;
-  width: 100%;
-  height: 20px;
-  margin-top: 5px;
-}
-
-.progress-fill {
-  background-color: #28a745;
-  height: 100%;
-  border-radius: 10px;
 }
 
 * {

@@ -1,12 +1,15 @@
 .settings-container {
-  padding: 20px;
+  padding: 40px;
   font-family: Arial, sans-serif;
+  background-color: white;
+  height: 100vh;
+  font-size: 24px;
 }
 
 .settings-header {
-  font-size: 2rem;
   text-align: center;
   margin-bottom: 20px;
+  color: white;
 }
 
 .settings-options {
@@ -17,19 +20,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 10px;
+  padding: 25px 20px;
   border-bottom: 1px solid #ccc;
-  font-size: 1.2rem;
   cursor: pointer;
+  color: white;
 }
 
 .settings-option:hover {
-  background-color: #f8f8f8;
+  background-color: #3b016a;
 }
 
 .arrow {
-  font-size: 1.5rem;
-  color: #888;
+  color: #ffffff;
+  font-size: 30px;
 }
 
 .connect-button {
@@ -43,9 +46,10 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 24px;
   width: 100%;
-  max-width: 300px;
+  height: 80px;
+  max-width: 350px;
 }
 
 .connect-button:hover {

@@ -1,13 +1,18 @@
 .items-page {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 20px;
+    padding:40px;
+    height: 100vh;
+    font-size: 24px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     height: 100vh;
 }
 
 .items-title {
     text-align: center;
-    color: #333;
+    color: #ffffff;
     margin-top: 20px;
 }
 
@@ -16,8 +21,8 @@
     list-style-type: none;
     padding: 0;
     margin: 0;
-    width: 90%;
-    max-width: 600px;
+    width: 100%;
+    max-width: 800px;
     margin: 0 auto;
 }
 
@@ -25,8 +30,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: white;
-    padding: 10px 15px;
+    background-color: #ffffff;
+    padding: 20px 15px;
     margin: 10px 0;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -39,8 +44,8 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    padding: 5px 10px;
-    font-size: 16px;
+    padding: 10px 15px;
+    font-size: 20px;
     transition: background-color 0.3s ease;
     margin-left: 10px;
 }
@@ -53,9 +58,9 @@
     display: block;
     margin: 20px auto;
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 24px;
     color: white;
-    background-color: #8c00ff;
+    background-color: #3b016a;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -63,13 +68,30 @@
 }
 
 .add-item-button:hover {
-    background-color: #5a00b3;
+    background-color: #23003f;
 }
+
+.scan-fridge-button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 24px;
+    color: #ffffff;
+    background-color: #000000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.scan-fridge-button:hover {
+    background-color: #000000;
+}
+
 
 .modal {
     position: fixed;
     top: 0;
-    left: 0;
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);

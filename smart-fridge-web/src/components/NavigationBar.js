@@ -14,22 +14,22 @@ const NavigationBar = () => {
   return (
     <div className="navigation-bar">
       <button onClick={() => navigate('/')} className="nav-button">
-        <img src={homeIcon} alt="Home" className="nav-icon" /> 
+        <img src={homeIcon} alt="Home" className="nav-icon" draggable="false"/> 
       </button>
       <button onClick={() => navigate('/items')} className="nav-button">
-        <img src={itemsIcon} alt="Items" className="nav-icon" />  
+        <img src={itemsIcon} alt="Items" className="nav-icon" draggable="false"/>  
       </button>
       <button onClick={() => navigate('/alerts')} className="nav-button">
-        <img src={alertIcon} alt="Alert" className="nav-icon" />  
+        <img src={alertIcon} alt="Alert" className="nav-icon" draggable="false"/>  
       </button>
       <button onClick={() => navigate('/shopping-list')} className="nav-button">
-        <img src={listIcon} alt="List" className="nav-icon" />
+        <img src={listIcon} alt="List" className="nav-icon" draggable="false"/>
       </button>
       <button onClick={() => navigate('/recipes')} className="nav-button">
-      <img src={recipeIcon} alt="Recipe" className="nav-icon" /> 
+      <img src={recipeIcon} alt="Recipe" className="nav-icon" draggable="false"/> 
       </button>
       <button onClick={() => navigate('/settings')} className="nav-button">
-      <img src={settingsIcon} alt="Settings" className="nav-icon" />
+      <img src={settingsIcon} alt="Settings" className="nav-icon" draggable="false"/>
       </button>
     </div>
   );

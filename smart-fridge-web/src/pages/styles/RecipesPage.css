@@ -1,82 +1,8 @@
-.status-bar {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.close-button {
-  cursor: pointer;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: red;
-}
-
-.recipe-content img {
-  max-width: 100%;
-  border-radius: 5px;
-  margin: 10px 0;
-}
-
-.recipe-content p {
-  text-align: left;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.modal-buttons button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.modal-buttons button:first-child {
-  background-color: #ccc;
-}
-
-.modal-buttons button:first-child:hover {
-  background-color: #9f9e9e;
-}
-
-.modal-buttons button:last-child {
-  background-color: #8c00ff;
-  color: white;
-}
-
-.modal-buttons button:last-child:hover {
-  background-color: #5a00b3;
-}
-*/
-
-
-
 .recipes-header {
   text-align: center;
-  color: #333;
-  margin-top: 20px;
+  color: white;
+  margin-top: 60px;
+  font-size: 50px;
 }
 
 .recipes-container {
@@ -86,31 +12,56 @@
   flex-direction: column;
   background-color: white;
   overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
 }
 
 .search-form {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 10px;
-  padding: 10px;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 16px;
+  width: 100%;
 }
+.search-buttons{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+  max-width: 80%;
+}
+
 
 .search-form input {
   padding: 10px;
-  width: 70%;
+  width: 80%;
+  max-width: 100%;
   border: 1px solid #ddd;
   border-radius: 5px;
+  padding: 12px 10px;
+  font-size: 17px;
+  box-sizing: border-box;
 }
 
 .search-form button {
   padding: 10px;
-  background-color: #8c00ff;
+  background-color: #3b016a;
   border: none;
   color: white;
+  padding: 12px 10px;
+  font-size: 17px;
   font-weight: bold;
   border-radius: 5px;
   cursor: pointer;
+  white-space: nowrap;
+}
+
+.search-form button:hover {
+  background-color: #23003f;
 }
 
 .recipes-list {
@@ -121,19 +72,43 @@
 }
 
 .recipe-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; 
   background: white;
   padding: 10px;
   border-radius: 10px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
   border: 1px solid #ddd;
-  width: 90%;
+  width: 100%;
   margin: 10px auto;
+  height: 100%; 
+}
+
+.recipe-card h3 {
+  flex-grow: 1;  
 }
 
 .recipe-card img {
   max-width: 100%;
   border-radius: 5px;
+}
+
+.recipe-card button {
+  background-color: #3b016a;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 17px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: auto; 
+}
+
+.recipe-card button:hover {
+  background-color: #23003f;
 }
 
 .recipes-list::-webkit-scrollbar {
@@ -145,10 +120,22 @@
   border-radius: 10px;
 }
 
+.recipes-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
+  justify-content: center;
+  padding: 20px;
+  width: 90%;
+  padding-bottom: 10%;
+}
+
 @media (max-width: 768px) {
   .search-form {
-    flex-direction: column;
-    align-items: center;
+    gap: 10px;
+
+    width: 95;
+    margin: 0 auto 16px auto;
   }
 
   .search-form input {
@@ -159,3 +146,33 @@
     padding: 5px;
   }
 }
+
+.modal-content {
+  position: fixed;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 500px; 
+  max-width: 80%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.modal {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.recipes-subheader{
+  text-align: center;
+  color: white;
+}
+

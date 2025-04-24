@@ -14,12 +14,14 @@ export const RecipesProvider = ({ children }) => {
       .catch((err) => console.error("Error fetching recipes:", err));
   }, []);
 
-  const addRecipe = async ({ name, cookTime, ingredients }) => {
+  const addRecipe = async ({ name, readyInMinutes, ingredients, image = "", instructions = "" }) => { // <-- changed
     try {
       const res = await axios.post("http://localhost:5001/recipes", {
         name,
-        cookTime,
+        readyInMinutes,                                                                  // <-- changed
         ingredients,
+        image,
+        instructions,
       });
       setRecipes((prev) => [...prev, res.data]);
     } catch (err) {
@@ -27,12 +29,16 @@ export const RecipesProvider = ({ children }) => {
     }
   };
 
-  const updateRecipe = async (id, { name, cookTime, ingredients }) => {
+
+
+  const updateRecipe = async (id, { name, readyInMinutes, ingredients, image = "", instructions = "" }) => { // <-- changed
     try {
       const res = await axios.put(`http://localhost:5001/recipes/${id}`, {
         name,
-        cookTime,
+        readyInMinutes,                                                                // <-- changed
         ingredients,
+        image,
+        instructions,
       });
       setRecipes((prev) => prev.map((r) => (r.id === id ? res.data : r)));
     } catch (err) {

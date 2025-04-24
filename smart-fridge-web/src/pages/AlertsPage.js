@@ -1,11 +1,14 @@
 // AlertsPage.js
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { AlertsContext } from "../context/AlertsContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
 import "./styles/AlertsPage.css";
+import backgroundImg from "../assets/background.jpg";
+import { useSpring, animated } from "@react-spring/web";
+import { useGesture } from "@use-gesture/react";
 
 const AlertsPage = () => {
   const { alerts, addAlert, updateAlert, removeAlert } =
@@ -111,50 +114,23 @@ const AlertsPage = () => {
     return `${hours}:${minutes.toString().padStart(2, "0")} ${amPm}`;
   };
 
+  //additions for scrolling
+  const scrollRef = useRef();
+  const modalScrollRef = useRef();
+  const [{ y }, set] = useSpring(() => ({ y: 0 }));
+  
+  const bind = useGesture(
+      {
+        onDrag: ({ offset: [, my] }) => {
+          set({ y: my });
+        },
+      },
+      { drag: { axis: "y", rubberband: false } }
+  );
+
   return (
-    <div className="alerts-page">
-      <h1 className="alerts-title">Alerts</h1>
+    <div className="alerts-page" style={{ backgroundImage: `url(${backgroundImg})` }}>
 
-      <div className="date-navigation">
-        <button onClick={() => handleDateChange(-1)}>&lt;</button>
-        <p>{currentDate.toDateString()}</p>
-        <button onClick={() => handleDateChange(1)}>&gt;</button>
-      </div>
-
-      <ul className="alerts-list">
-        {filteredAlerts.map((alert) => (
-          <li
-            key={alert.id}
-            className="alert-item"
-            onClick={() => openModalForEdit(alert)}
-          >
-            <input
-              type="checkbox"
-              checked={alert.checked}
-              onChange={(e) => {
-                e.stopPropagation(); // prevent opening modal on checkbox click
-                toggleChecked(alert);
-              }}
-            />
-            <span className="alert-name">
-              {alert.title} ({formatTimeTo12Hour(alert.time)})
-            </span>
-            <button
-              className="delete-button"
-              onClick={(e) => {
-                e.stopPropagation(); // prevent opening modal on delete click
-                removeAlert(alert.id);
-              }}
-            >
-              x
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      <button className="add-button" onClick={openModalForNew}>
-        + Schedule Alert
-      </button>
 
       {showModal && (
         <div className="modal" onClick={handleCloseModal}>
@@ -206,6 +182,51 @@ const AlertsPage = () => {
           </div>
         </div>
       )}
+
+      <animated.div ref={scrollRef} className="recipes-scrollable" {...bind()} style={{ transform: y.to((val) => `translateY(${val}px)`) }}>
+      <h1 className="alerts-title">Alerts</h1>
+      <div className="date-navigation">
+        <button onClick={() => handleDateChange(-1)}>&lt;</button>
+        <p>{currentDate.toDateString()}</p>
+        <button onClick={() => handleDateChange(1)}>&gt;</button>
+      </div>
+
+      <ul className="alerts-list">
+        {filteredAlerts.map((alert) => (
+          <li
+            key={alert.id}
+            className="alert-item"
+            onClick={() => openModalForEdit(alert)}
+          >
+            <input
+              type="checkbox"
+              checked={alert.checked}
+              onChange={(e) => {
+                e.stopPropagation(); // prevent opening modal on checkbox click
+                toggleChecked(alert);
+              }}
+            />
+            <span className="alert-name">
+              {alert.title} ({formatTimeTo12Hour(alert.time)})
+            </span>
+            <button
+              className="delete-button"
+              onClick={(e) => {
+                e.stopPropagation(); // prevent opening modal on delete click
+                removeAlert(alert.id);
+              }}
+            >
+              x
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <button className="add-button" onClick={openModalForNew}>
+        + Schedule Alert
+      </button>
+
+      </animated.div>
     </div>
   );
 };

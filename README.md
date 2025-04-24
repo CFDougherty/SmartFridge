@@ -21,7 +21,7 @@ Managing fridge ingredients manually is tedious and often leads to food waste,
 expired items, and inefficient meal planning. Current solutions are too expensive or 
 lack automation, making tracking and meal preparation frustrating for consumers.
 
-Our AI Smart Fridge project project automates ingredient monitoring, expiration 
+Our AI Smart Fridge project automates ingredient monitoring, expiration 
 tracking, and recipe suggestions. By combining IoT and machine learning, it reduces 
 food waste, generates shopping lists, alerts users to low stock, and simplifies meal 
 planning—all in one seamless system.
@@ -32,7 +32,6 @@ planning—all in one seamless system.
 - **Expiration Monitoring:** Alerts users about soon-to-expire items to minimize waste.
 - **Meal Suggestions:** Proposes meals based on available ingredients, dietary restrictions, and expiration rankings.
 - **Shopping List:** Automatically builds a shopping list for low-stock items.
-- **Integration with Delivery Services:** Enables users to order groceries directly from services like Instacart.
 
 
 ## Design Details
@@ -43,7 +42,7 @@ create an efficient kitchen management system. Below are the design consideratio
 **Hardware Integration:**
 - Camera: Captures images of fridge contents for inventory tracking using image classification.
 - Load Cell Sensors: Measure ingredient weight changes to track usage.
-- Display: Provides an interactive interface for users to view inventory, create and order shopping lists, follow recipes, and schedule alerts directly on the fridge door.
+- Display: Provides an interactive interface for users to view inventory, create shopping lists, follow recipes, and schedule alerts directly on the fridge door.
   
 **Software Components:**
 - Front (React): Provide an interface for viewing inventory, editing items, searching recipes, and editing alert/shopping lists.
@@ -52,10 +51,9 @@ create an efficient kitchen management system. Below are the design consideratio
 - API Integrations:
   - UPCItemDB for barcode lookup.
   - Spoonacular for recipe searching and suggestions.
+  - OpenAI for image processing
 - Fridge Display Software: Tracks inventory in the fridge, receives low-stock or expiration alerts, suggests recipes, and provides a shopping list with ordering options.
 - Mobile/Web App: Tracks inventory remotely, receives low-stock or expiration alerts, suggests recipes, and provides a shopping list with ordering options.
-- Machine Learning Models: Uses OpenCV for image preprocessing and PyTorch for building, training, and testing deep learning models for ingredient recognition.
-- API Integrations: Connects to delivery services like Instacart for grocery shopping automation. Connects to an extensive recipe database. 
 
 # User Interface:
 **Key Features:**
@@ -114,12 +112,12 @@ https://www.figma.com/proto/wWFdGDr48QXB2gG65yrl4t/Fridge-Display-Wireframe?node
 - Camera
 - Display
 - Load Cell
-- Python Libraries: OpenCV, PyTorch, SQLite3
+- Python Libraries: SQLite3
+- OpenAI 4o API key & tokens
 
 # Installation steps
-$ git clone https://github.com/SnowDrifterr/CS-Capstone.git
-$ cd CS-Capstone
-$ npm install #or any other relevant command
+$ Download and run build_project.sh in ~/
+$ Ensure that ~/credentials.env are present
 
 
 ## Configuration

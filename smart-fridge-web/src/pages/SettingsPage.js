@@ -1,6 +1,7 @@
 
 import React from "react";
 import "./styles/SettingsPage.css";
+import backgroundImg from "../assets/background.jpg";
 
 const SettingsPage = () => {
   const settingsOptions = [
@@ -14,7 +15,7 @@ const SettingsPage = () => {
   ];
 
   return (
-    <div className="settings-container">
+    <div className="settings-container" style={{ backgroundImage: `url(${backgroundImg})` }}>
       <h1 className="settings-header">Settings</h1>
       <div className="settings-options">
         {settingsOptions.map((option, index) => (

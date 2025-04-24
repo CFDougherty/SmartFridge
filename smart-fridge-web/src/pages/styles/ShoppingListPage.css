@@ -1,23 +1,28 @@
 .shopping-list-page {
   font-family: Arial, sans-serif;
   margin: 0;
-  padding: 20px;
-  background-color: white;
+  padding:40px;
+  height: 100vh;
+  font-size: 24px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
 }
 
 .shopping-list-title {
   text-align: center;
-  color: #333;
+  color: #ffffff;
   margin-top: 20px;
-  font-size: 2rem;
 }
 
 .shopping-list {
   list-style-type: none;
   padding: 0;
   margin: 20px auto;
-  width: 90%;
-  max-width: 600px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .shopping-list-item {
@@ -25,22 +30,25 @@
   align-items: center;
   justify-content: space-between;
   background-color: white;
-  padding: 10px 15px;
+  padding: 20px 15px;
   margin: 10px 0;
   border: 1px solid #ddd;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 26px;
 }
 
 .shopping-list-item input[type="checkbox"] {
-  margin-right: 10px;
+  margin-right: 20px;
   cursor: pointer;
   transform: scale(1.2);
+  width: 30px;
+  height: 30px;
+
 }
 
 .shopping-list-name {
   flex-grow: 1;
-  font-size: 1rem;
   cursor: pointer;
 }
 
@@ -55,8 +63,8 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  padding: 5px 10px;
-  font-size: 16px;
+  padding: 10px 15px;
+  font-size: 20px;
   transition: background-color 0.3s ease;
 }
 
@@ -64,13 +72,30 @@
   background-color: #d9363e;
 }
 
+.add-item-button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 24px;
+  color: white;
+  background-color: #3b016a;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-item-button:hover {
+  background-color: #23003f;
+}
+
 .place-order-button {
   display: block;
   margin: 20px auto;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 24px;
   color: white;
-  background-color: #28a745;
+  background-color: #3b016a;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -78,7 +103,7 @@
 }
 
 .place-order-button:hover {
-  background-color: #1e7e34;
+  background-color: #23003f;
 }
 
 .auto-add-button {
@@ -89,9 +114,9 @@
   display: block;
   margin: auto;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 24px;
   color: white;
-  background-color: #8c00ff;
+  background-color: #1e0238;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -99,14 +124,12 @@
 }
 
 .auto-add-button:hover {
-  background-color: #5a00b3;
+  background-color: #000000;
 }
 
-/* Modal (Popup) Styles */
 .modal {
   position: fixed;
   top: 0;
-  left: 0;
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);

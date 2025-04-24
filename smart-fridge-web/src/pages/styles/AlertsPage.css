@@ -1,13 +1,19 @@
 .alerts-page {
   font-family: Arial, sans-serif;
   margin: 0;
-  padding: 20px;
+  padding: 40px;
   background-color: white;
+  height: 100vh;
+  font-size: 24px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
 }
 
 .alerts-title {
   text-align: center;
-  color: #333;
+  color: white;
   margin-top: 20px;
 }
 
@@ -15,15 +21,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  margin: 30px 0;
 }
 
 .date-navigation button {
-  background-color: #8c00ff;
+  background-color: #3b016a;
   border: none;
   color: white;
   padding: 10px 15px;
-  font-size: 16px;
+  font-size: 20px;
   margin: 0 10px;
   cursor: pointer;
   border-radius: 5px;
@@ -31,22 +37,22 @@
 }
 
 .date-navigation button:hover {
-  background-color: #5a00b3;
+  background-color: #23003f;
 }
 
 .date-navigation p {
-  font-size: 18px;
+  font-size: 24px;
   font-weight: bold;
   margin: 0;
-  color: #333;
+  color: white;
 }
 
 .alerts-list {
   list-style-type: none;
-  padding: 0;
+  padding: 0px;
   margin: 20px auto;
-  width: 90%;
-  max-width: 600px;
+  width: 100%;
+  max-width: 800px;
 }
 
 .alert-item {
@@ -54,7 +60,7 @@
   align-items: center;
   justify-content: space-between;
   background-color: white;
-  padding: 10px 15px;
+  padding: 20px 15px;
   margin: 10px 0;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -74,9 +80,9 @@
   display: block;
   margin: 20px auto;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 24px;
   color: white;
-  background-color: #8c00ff;
+  background-color: #3b016a;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -84,7 +90,7 @@
 }
 
 .add-button:hover {
-  background-color: #5a00b3;
+  background-color: #23003f;
 }
 
 .delete-button {
@@ -93,8 +99,8 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  padding: 5px 10px;
-  font-size: 16px;
+  padding: 10px 15px;
+  font-size: 20px;
   transition: background-color 0.3s ease;
 }
 
@@ -105,7 +111,6 @@
 .modal {
   position: fixed;
   top: 0;
-  left: 0;
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);

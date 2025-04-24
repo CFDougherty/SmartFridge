@@ -2,10 +2,12 @@ const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 const axios = require("axios");
+const fetch = require("node-fetch"); 
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
 
 const db = new sqlite3.Database("./smart-fridge.db", (err) => {
   if (err) {
@@ -15,91 +17,136 @@ const db = new sqlite3.Database("./smart-fridge.db", (err) => {
   console.log("Connected to the smart-fridge.db database.");
 });
 
-db.run(
-  `CREATE TABLE IF NOT EXISTS recipes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    cookTime TEXT,
-    ingredients TEXT
-  )`,
-  (err) => {
-    if (err) console.error("Error creating recipes table:", err.message);
-  }
-);
+db.run(`CREATE TABLE IF NOT EXISTS recipes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  readyInMinutes INTEGER,
+  ingredients TEXT,
+  image TEXT,
+  instructions TEXT
+)`);
 
-db.run(
-  `CREATE TABLE IF NOT EXISTS alerts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    description TEXT,
-    date TEXT,
-    time TEXT,
-    checked INTEGER DEFAULT 0
-  )`,
-  (err) => {
-    if (err) console.error("Error creating alerts table:", err.message);
-  }
-);
 
-db.run(
-  `CREATE TABLE IF NOT EXISTS shopping_list (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    quantity TEXT,
-    checked INTEGER DEFAULT 0
-  )`,
-  (err) => {
-    if (err) console.error("Error creating shopping_list table:", err.message);
-  }
-);
+db.run(`CREATE TABLE IF NOT EXISTS alerts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT,
+  description TEXT,
+  date TEXT,
+  time TEXT,
+  checked INTEGER DEFAULT 0
+)`);
 
-db.run(
-  `CREATE TABLE IF NOT EXISTS fridge (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    quantity TEXT,
-    unit TEXT,
-    expiry DATE
-  )`,
-  (err) => {
-    if (err) console.error("Error creating fridge table:", err.message);
-  }
-);
+db.run(`CREATE TABLE IF NOT EXISTS shopping_list (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  quantity TEXT,
+  checked INTEGER DEFAULT 0
+)`);
 
-app.get("/recipes", (req, res) => {
-  db.all("SELECT * FROM recipes", [], (err, rows) => {
+db.run(`CREATE TABLE IF NOT EXISTS fridge (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  quantity TEXT,
+  unit TEXT,
+  expiry TEXT
+)`);
+
+// Clear alerts and fridge tables on startup (for demo purposes)
+db.run("DELETE FROM alerts", (err) => {
+  if (err) console.error("Error clearing alerts:", err.message);
+  else console.log("Alerts table cleared on startup.");
+});
+db.run("DELETE FROM fridge", (err) => {
+  if (err) console.error("Error clearing fridge contents:", err.message);
+  else console.log("Fridge table cleared on startup.");
+});
+
+
+app.delete("/fridge/clear", (req, res) => {
+  db.run("DELETE FROM fridge", (err) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
+    res.json({ success: true });
   });
 });
 
-app.post("/recipes", (req, res) => {
-  const { name, cookTime, ingredients } = req.body;
-  if (!name || !cookTime || !ingredients) {
-    return res.status(400).json({ error: "Missing required fields" });
+// ============ RECIPES ENDPOINTS ============
+app.get("/recipes", (req, res) => {
+  let sql = "SELECT * FROM recipes"
+  const params = []
+
+  if (req.query.search) {
+    const terms = req.query.search
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean)
+
+    if (terms.length) {
+      const clauses = terms.map(() => "(name LIKE ? OR ingredients LIKE ?)").join(" AND ")
+      sql += " WHERE " + clauses
+      terms.forEach(t => {
+        params.push(`%${t}%`)
+        params.push(`%${t}%`)
+      })
+    }
   }
+
+  db.all(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message })
+    res.json(rows)
+  })
+})
+
+
+
+app.post("/recipes", (req, res) => {
+  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   // <-- changed
+  if (!name || readyInMinutes == null || !ingredients)                           // <-- changed
+    return res.status(400).json({ error: "Missing required fields" });
+
+  const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ") : ingredients;
+
   db.run(
-    `INSERT INTO recipes (name, cookTime, ingredients) VALUES (?, ?, ?)`,
-    [name, cookTime, ingredients.join(", ")],
+    `INSERT INTO recipes (name, readyInMinutes, ingredients, image, instructions) VALUES (?, ?, ?, ?, ?)`, // <-- changed
+    [name, readyInMinutes, ingredientsStr, image || "", instructions || ""],                              // <-- changed
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID, name, cookTime, ingredients });
+      res.json({
+        id: this.lastID,
+        name,
+        readyInMinutes,                                                          // <-- changed
+        ingredients: ingredientsStr.split(","),
+        image: image || "",
+        instructions: instructions || ""
+      });
     }
   );
 });
 
+
+
 app.put("/recipes/:id", (req, res) => {
   const { id } = req.params;
-  const { name, cookTime, ingredients } = req.body;
+  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   // <-- changed
+
+  const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ") : ingredients;
   db.run(
-    `UPDATE recipes SET name = ?, cookTime = ?, ingredients = ? WHERE id = ?`,
-    [name, cookTime, ingredients.join(", "), id],
+    `UPDATE recipes SET name = ?, readyInMinutes = ?, ingredients = ?, image = ?, instructions = ? WHERE id = ?`, // <-- changed & fixed typo
+    [name, readyInMinutes, ingredientsStr, image || "", instructions || "", id],                                    // <-- changed
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: Number(id), name, cookTime, ingredients });
+      res.json({
+        id: Number(id),
+        name,
+        readyInMinutes,                                                        // <-- changed
+        ingredients: ingredientsStr.split(","),
+        image: image || "",
+        instructions: instructions || ""
+      });
     }
   );
 });
+
+
 
 app.delete("/recipes/:id", (req, res) => {
   const { id } = req.params;
@@ -109,6 +156,7 @@ app.delete("/recipes/:id", (req, res) => {
   });
 });
 
+// ============ ALERTS ENDPOINTS ============
 app.get("/alerts", (req, res) => {
   db.all("SELECT * FROM alerts", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -119,22 +167,14 @@ app.get("/alerts", (req, res) => {
 
 app.post("/alerts", (req, res) => {
   const { title, description, date, time } = req.body;
-  if (!title || !date || !time) {
+  if (!title || !date || !time)
     return res.status(400).json({ error: "Missing required fields" });
-  }
   db.run(
     `INSERT INTO alerts (title, description, date, time) VALUES (?, ?, ?, ?)`,
     [title, description, date, time],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: this.lastID,
-        title,
-        description,
-        date,
-        time,
-        checked: false,
-      });
+      res.json({ id: this.lastID, title, description, date, time, checked: false });
     }
   );
 });
@@ -148,14 +188,7 @@ app.put("/alerts/:id", (req, res) => {
     [title, description, date, time, checkedValue, id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: Number(id),
-        title,
-        description,
-        date,
-        time,
-        checked,
-      });
+      res.json({ id: Number(id), title, description, date, time, checked });
     }
   );
 });
@@ -168,66 +201,66 @@ app.delete("/alerts/:id", (req, res) => {
   });
 });
 
-app.post("/inventory/upload", (req, res) => {
-  const { inventory } = req.body;
-  if (!inventory || !Array.isArray(inventory)) {
-    return res.status(400).json({ error: "Invalid inventory data format." });
-  }
-
-  const insertPromises = inventory.map((item) => {
-    const { name, count } = item;
-    const quantity = count?.toString() || "0";
-    const unit = "cnt.";
-    const expiry = "";
-
-    return new Promise((resolve, reject) => {
-      db.run(
-        `INSERT INTO fridge (name, quantity, unit, expiry) VALUES (?, ?, ?, ?)`,
-        [name, quantity, unit, expiry],
-        function (err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID, name, quantity, unit, expiry });
-        }
-      );
-    });
+// ============ SHOPPING LIST ENDPOINTS ============
+app.get("/shopping-list", (req, res) => {
+  db.all("SELECT * FROM shopping_list", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    const items = rows.map((row) => ({ ...row, checked: row.checked === 1 }));
+    res.json(items);
   });
-
-  Promise.all(insertPromises)
-    .then((results) => res.json({ success: true, itemsAdded: results.length }))
-    .catch((err) => {
-      console.error("Error inserting inventory items:", err);
-      res.status(500).json({ error: err.message });
-    });
 });
 
+app.post("/shopping-list", (req, res) => {
+  const { name, quantity } = req.body;
+  if (!name)
+    return res.status(400).json({ error: "Item name is required" });
+  db.run(
+    `INSERT INTO shopping_list (name, quantity) VALUES (?, ?)`,
+    [name, quantity || ""],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: this.lastID, name, quantity: quantity || "", checked: false });
+    }
+  );
+});
+
+app.put("/shopping-list/:id", (req, res) => {
+  const { id } = req.params;
+  const { name, quantity, checked } = req.body;
+  const checkedValue = checked ? 1 : 0;
+  db.run(
+    `UPDATE shopping_list SET name = ?, quantity = ?, checked = ? WHERE id = ?`,
+    [name, quantity, checkedValue, id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: Number(id), name, quantity, checked });
+    }
+  );
+});
+
+app.delete("/shopping-list/:id", (req, res) => {
+  const { id } = req.params;
+  db.run(`DELETE FROM shopping_list WHERE id = ?`, [id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
+
+// ============ FRIDGE ENDPOINTS ============
 app.get("/fridge", (req, res) => {
   db.all("SELECT * FROM fridge", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-
-    const today = new Date();
-    const itemsWithExpiry = rows.map(item => {
-      if (!item.expiry) return { ...item, daysUntilExpiry: "No expiry set" };
-
-      const expiryDate = new Date(item.expiry);
-      const timeDiff = expiryDate - today;
-      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-      return { ...item, daysUntilExpiry: daysLeft >= 0 ? `${daysLeft} days left` : "Expired" };
-    });
-
-    res.json(itemsWithExpiry);
+    res.json(rows);
   });
 });
 
-
-
 app.post("/fridge", (req, res) => {
   const { name, quantity, unit, expiry } = req.body;
-  if (!name) return res.status(400).json({ error: "Item name is required" });
-
+  if (!name)
+    return res.status(400).json({ error: "Item name is required" });
   db.run(
     `INSERT INTO fridge (name, quantity, unit, expiry) VALUES (?, ?, ?, ?)`,
-    [name, quantity || "", unit || "", expiry ? new Date(expiry).toISOString().split("T")[0] : null],
+    [name, quantity || "", unit || "", expiry || ""],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID, name, quantity, unit, expiry });
@@ -235,21 +268,18 @@ app.post("/fridge", (req, res) => {
   );
 });
 
-
 app.put("/fridge/:id", (req, res) => {
   const { id } = req.params;
   const { name, quantity, unit, expiry } = req.body;
-  
   db.run(
     `UPDATE fridge SET name = ?, quantity = ?, unit = ?, expiry = ? WHERE id = ?`,
-    [name, quantity, unit, expiry ? new Date(expiry).toISOString().split("T")[0] : null, id],
+    [name, quantity, unit, expiry, id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: Number(id), name, quantity, unit, expiry });
     }
   );
 });
-
 
 app.delete("/fridge/:id", (req, res) => {
   const { id } = req.params;
@@ -259,43 +289,27 @@ app.delete("/fridge/:id", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5001;
-
-
-setInterval(() => {
-  console.log("Updating expiry tracking...");
+// Additional endpoint: Return all fridge items as /items
+app.get("/items", (req, res) => {
   db.all("SELECT * FROM fridge", [], (err, rows) => {
-      if (err) return console.error("Error fetching items:", err);
-
-      const today = new Date();
-      rows.forEach(item => {
-          if (!item.expiry) return;
-
-          const expiryDate = new Date(item.expiry);
-          const timeDiff = expiryDate - today;
-          const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-          db.run(
-              `UPDATE fridge SET expiry = ? WHERE id = ?`,
-              [daysLeft < 0 ? "Expired" : item.expiry, item.id],
-              (updateErr) => {
-                  if (updateErr) console.error("Error updating expiry status:", updateErr);
-              }
-          );
-      });
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
   });
-}, 24 * 60 * 60 * 1000); // Run every 24 hours
+});
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
+// ============ EXTERNAL BARCODE LOOKUP ============
+app.get("/barcodes/lookup/:code", async (req, res) => {
+  let { code } = req.params;
+  try {
+    if (code.length === 13 && code.startsWith("0")) {
+      code = code.slice(1);
+    }
     const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`;
     const response = await axios.get(url);
     const data = response.data;
-
     if (!data || data.code !== "OK" || !data.items || data.items.length === 0) {
       return res.json({ found: false, productName: "" });
     }
-
     const productName = data.items[0].title || "";
     return res.json({ found: true, productName });
   } catch (error) {
@@ -303,6 +317,52 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     return res.json({ found: false, productName: "" });
   }
 });
+
+// ============ CAMERA IMAGE ENDPOINT (with fallback testing) ============
+app.get("/camera-image", async (req, res) => {
+  try {
+    const CAMERA_URL = "http://picam.local:5000/image.jpg";
+    let response = await fetch(CAMERA_URL).catch(() => null);
+    if (!response || !response.ok) {
+      // Fallback: Use a local placeholder image (as a Base64 string)
+      const fallbackBase64 =
+        "iVBORw0KGgoAAAANSUhEUgAAAAUA"+
+        "AAAFCAYAAACNbyblAAAAHElEQVQI12P4"+
+        "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
+      const buffer = Buffer.from(fallbackBase64, "base64");
+      res.set("Content-Type", "image/png");
+      return res.send(buffer);
+    }
+    const buffer = await response.buffer();
+    res.set("Content-Type", "image/jpeg");
+    res.send(buffer);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// OPTIONAL daily expiry update
+setInterval(() => {
+  console.log("Updating expiry tracking...");
+  db.all("SELECT * FROM fridge", [], (err, rows) => {
+    if (err) return console.error("Error fetching items:", err);
+    const today = new Date();
+    rows.forEach((item) => {
+      if (!item.expiry) return;
+      const expiryDate = new Date(item.expiry);
+      const timeDiff = expiryDate - today;
+      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      db.run(
+        `UPDATE fridge SET expiry = ? WHERE id = ?`,
+        [daysLeft < 0 ? "Expired" : item.expiry, item.id],
+        (updateErr) => {
+          if (updateErr)
+            console.error("Error updating expiry status:", updateErr);
+        }
+      );
+    });
+  });
+}, 24 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
