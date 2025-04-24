@@ -36,7 +36,7 @@ else
     echo "Missing credentials.env"
     exit 1
 fi
-if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_PASSWORD" ] || [ -z "$REPO_URL" ] || [ -z "$OPENAI_API_KEY" ]; then
+if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_PASSWORD" ] || [ -z "$REPO_URL" ] || [ -z "$OPENAI_API_KEY" ] || [ -z "SPOONACULAR_API_KEY" ]; then
     echo "Could not load credentials"
     exit 1
 fi
@@ -50,8 +50,11 @@ echo "Cloning"
 git clone "$REPO_URL"
 wait
 
-#Copy in the OAI API key to the root web folder. Need a better way... But will work well enough for now
-echo "REACT_APP_OPENAI_API_KEY=$OPENAI_API_KEY" > ~/CS-Capstone/smart-fridge-web/.env
+#Copy over Spoonacular, OAI api keys
+{
+  echo "REACT_APP_OPENAI_API_KEY=$OPENAI_API_KEY"
+  echo "REACT_APP_SPOONACULAR_API_KEY=$SPOONACULAR_API_KEY"
+} > ~/CS-Capstone/smart-fridge-web/.env
 
 cd ~/CS-Capstone/smart-fridge-web || exit
 
