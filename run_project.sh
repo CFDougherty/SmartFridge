@@ -25,7 +25,7 @@ fi
 {
   echo "REACT_APP_OPENAI_API_KEY=$OPENAI_API_KEY"
   echo "REACT_APP_SPOONACULAR_API_KEY=$SPOONACULAR_API_KEY"
-} >> ~/CS-Capstone/smart-fridge-web/.env
+} > ~/CS-Capstone/smart-fridge-web/.env
 
 
 # Start frontend, new window
