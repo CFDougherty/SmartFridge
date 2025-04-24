@@ -21,8 +21,12 @@ if [ -z "$OPENAI_API_KEY" ]; then
     exit 1
 fi
 
-#Copy in the OAI API key to the root web folder. Need a better way... But will work well enough for now
-echo "REACT_APP_OPENAI_API_KEY=$OPENAI_API_KEY" > ~/CS-Capstone/smart-fridge-web/.env
+#Copy over Spoonacular, OAI api keys
+{
+  echo "REACT_APP_OPENAI_API_KEY=$OPENAI_API_KEY"
+  echo "REACT_APP_SPOONACULAR_API_KEY=$SPOONACULAR_API_KEY"
+} >> ~/CS-Capstone/smart-fridge-web/.env
+
 
 # Start frontend, new window
 echo "Starting frontend"
