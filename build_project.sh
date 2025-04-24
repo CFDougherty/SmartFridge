@@ -36,7 +36,7 @@ else
     echo "Missing credentials.env"
     exit 1
 fi
-if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_PASSWORD" ] || [ -z "$REPO_URL" ] || [ -z "$OPENAI_API_KEY" ] || [ -z "SPOONACULAR_API_KEY" ]; then
+if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_PASSWORD" ] || [ -z "$REPO_URL" ] || [ -z "$OPENAI_API_KEY" ] || [ -z "$SPOONACULAR_API_KEY" ]; then
     echo "Could not load credentials"
     exit 1
 fi
