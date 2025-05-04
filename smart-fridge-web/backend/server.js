@@ -51,15 +51,6 @@ db.run(`CREATE TABLE IF NOT EXISTS fridge (
   expiry TEXT
 )`);
 
-// Clear alerts and fridge tables on startup (for demo purposes)
-db.run("DELETE FROM alerts", (err) => {
-  if (err) console.error("Error clearing alerts:", err.message);
-  else console.log("Alerts table cleared on startup.");
-});
-db.run("DELETE FROM fridge", (err) => {
-  if (err) console.error("Error clearing fridge contents:", err.message);
-  else console.log("Fridge table cleared on startup.");
-});
 
 
 app.delete("/fridge/clear", (req, res) => {

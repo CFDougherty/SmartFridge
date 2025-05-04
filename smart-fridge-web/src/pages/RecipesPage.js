@@ -230,8 +230,10 @@ const RecipesPage = () => {
               {recipe.readyInMinutes > 0 && (
                 <p className="cook-time"><strong>Ready in:</strong> {recipe.readyInMinutes} minutes</p>
               )}
+              
               <button onClick={() => showRecipeDetails(recipe.id)}>View Recipe</button>
-            </div>
+
+              </div>
           ))}
         </div>
 
@@ -244,7 +246,14 @@ const RecipesPage = () => {
               {recipe.readyInMinutes > 0 && (
                 <p className="cook-time"><strong>Ready in:</strong> {recipe.readyInMinutes} minutes</p>
               )}
+              <div className="recipe-card-buttons">
               <button onClick={() => viewSavedRecipe(recipe)}>View Recipe</button>
+              <button classname="delete-button" onClick={() => {
+                if(window.confirm(`Are you sure you want to delete "${recipe.name}"?`)){
+                  removeRecipe(recipe.id);
+                }
+              }}>Delete</button>
+            </div>
             </div>
           ))}
         </div>
