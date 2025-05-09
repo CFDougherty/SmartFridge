@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
@@ -66,16 +65,24 @@ export const RecipesProvider = ({ children }) => {
     );
   };
 
-  const fetchMoreRecipesFromSpoonacular = async () => {
+
+  const fetchMoreRecipesFromSpoonacular = async (searchTerm = "") => {
     const apiKey = "6dacd1bf57fc4f27be8752284f04b8cd";
+ 
+    const url = searchTerm.trim()
+      ? `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(
+          searchTerm
+        )}&addRecipeInformation=true&number=10&apiKey=${apiKey}`
+      : `https://api.spoonacular.com/recipes/random?apiKey=${apiKey}&number=10`;
+
     try {
-      const res = await axios.get(
-        `https://api.spoonacular.com/recipes/random?apiKey=${apiKey}&number=10`
-      );
-      const newRecipes = res.data.recipes || [];
-  
+      const res = await axios.get(url);
+      const newRecipes = res.data.results || res.data.recipes || [];
+
       for (let recipe of newRecipes) {
-        const ingredients = (recipe.extendedIngredients || []).map((ing) => ing.original);
+        const ingredients = (recipe.extendedIngredients || []).map(
+          (ing) => ing.original
+        );
         await axios.post("http://localhost:5001/recipes", {
           name: recipe.title,
           readyInMinutes: recipe.readyInMinutes,
@@ -84,13 +91,12 @@ export const RecipesProvider = ({ children }) => {
           instructions: recipe.instructions || "",
         });
       }
-  
+
       await loadRecipesFromDatabase();
     } catch (err) {
       console.error("Error fetching from Spoonacular:", err);
     }
   };
-  
 
   return (
     <RecipesContext.Provider
@@ -99,9 +105,8 @@ export const RecipesProvider = ({ children }) => {
         addRecipe,
         updateRecipe,
         removeRecipe,
-        searchLocalRecipes,
         fetchMoreRecipesFromSpoonacular,
-        loadRecipesFromDatabase
+        loadRecipesFromDatabase,
       }}
     >
       {children}
