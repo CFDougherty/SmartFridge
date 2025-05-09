@@ -39,7 +39,6 @@ const RecipesPage = () => {
       setFilteredRecipes(recipes);
       setNoResults(recipes.length === 0);
     }
-    setFilteredRecipes(recipes);
   }, [recipes, query]);
 
 

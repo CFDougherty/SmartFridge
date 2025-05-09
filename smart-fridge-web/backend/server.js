@@ -2,7 +2,7 @@ const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 const axios = require("axios");
-//const fetch = require("node-fetch"); 
+const fetch = require("node-fetch"); 
 
 const app = express();
 app.use(cors());
@@ -51,15 +51,6 @@ db.run(`CREATE TABLE IF NOT EXISTS fridge (
   expiry TEXT
 )`);
 
-// Clear alerts and fridge tables on startup (for demo purposes)
-db.run("DELETE FROM alerts", (err) => {
-  if (err) console.error("Error clearing alerts:", err.message);
-  else console.log("Alerts table cleared on startup.");
-});
-db.run("DELETE FROM fridge", (err) => {
-  if (err) console.error("Error clearing fridge contents:", err.message);
-  else console.log("Fridge table cleared on startup.");
-});
 
 
 app.delete("/fridge/clear", (req, res) => {
@@ -137,7 +128,7 @@ app.put("/recipes/:id", (req, res) => {
       res.json({
         id: Number(id),
         name,
-        readyInMinutes,                                                        // <-- changed
+        readyInMinutes,                                                      
         ingredients: ingredientsStr.split(","),
         image: image || "",
         instructions: instructions || ""
