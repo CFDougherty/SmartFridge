@@ -12,7 +12,7 @@ const RecipesPage = () => {
     updateRecipe,
     removeRecipe,
     fetchMoreRecipesFromSpoonacular,
-    loadRecipesFromDatabase
+    //loadRecipesFromDatabase
   } = useContext(RecipesContext);
 
   const [query, setQuery] = useState("");
@@ -39,31 +39,41 @@ const RecipesPage = () => {
   }, [recipes]);
 
   const [loading, setLoading] = useState(false);
+  const [noResults, setNoResults] = useState(false);
+
 
   const handleSearch = async () => {
     if (!query.trim()) {
       setFilteredRecipes(recipes);
+      setNoResults(false);
       return;
     }
 
     try {
-      const res = await fetch(`http://localhost:5001/recipes?search=${encodeURIComponent(query)}`);
+      const res = await fetch(
+        `http://localhost:5001/recipes?search=${encodeURIComponent(query)}`
+      );
       const data = await res.json();
       setFilteredRecipes(data);
+      // <-- new:
+      setNoResults(data.length === 0);
     } catch (error) {
       console.error("Search failed:", error);
     }
   };
 
+
   const handleShowMoreAndStore = async () => {
     setLoading(true);
     try {
-      await fetchMoreRecipesFromSpoonacular();
+      await fetchMoreRecipesFromSpoonacular(query);
       await handleSearch();
     } catch (err) {
       console.error("Error loading more recipes:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+    
   };
   
   
@@ -168,7 +178,7 @@ const RecipesPage = () => {
           {loading ? (
             <div className="loading-text">Loading...</div>
           ) : (
-            <button className="load-more-button" onClick={handleShowMoreAndStore}>
+            <button className="load-more-button" onClick={handleShowMoreAndStore} disabled={loading}>
               Load More Recipes
             </button>
           )}
