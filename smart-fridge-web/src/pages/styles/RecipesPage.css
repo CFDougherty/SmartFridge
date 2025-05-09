@@ -1,5 +1,3 @@
-
-
 .recipes-header {
   text-align: center;
   color: white;
@@ -295,91 +293,32 @@
   padding: 10px 20px;
 }
 
-.modal-buttons button:first-of-type {
-  background-color: #6c757d;
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 40px 0;
 }
 
-.modal-buttons button:first-of-type:hover {
-  background-color: #5a6268;
+.load-more-button {
+  background-color: #3b016a;
+  color: white;
+  padding: 12px 20px;
+  font-size: 17px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.modal-buttons button:last-of-type {
-  background-color: #28a745;
+.load-more-button:hover {
+  background-color: #23003f;
 }
 
-.modal-buttons button:last-of-type:hover {
-  background-color: #218838;
-}
-
-@media (max-width: 768px) {
-  .recipes-header {
-    font-size: 36px;
-    margin-top: 40px;
-  }
-
-  .search-form input[type="text"] {
-    width: 95%;
-  }
-
-  .search-buttons {
-    max-width: 100%;
-    padding: 0 5px;
-  }
-
-  .search-form button {
-    font-size: 14px;
-    padding: 8px 12px;
-  }
-
-  .recipes-section {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
-    padding: 15px;
-  }
-
-  .recipe-card {
-    padding: 10px;
-  }
-
-  .recipe-card h3 {
-    font-size: 1em;
-    min-height: 35px;
-  }
-
-  .recipe-card img,
-  .recipe-card .placeholder-image {
-    height: 120px;
-  }
-
-  .recipe-card button {
-    font-size: 0.8em;
-    padding: 6px 10px;
-  }
-
-  /* Adjust gap for smaller screens if desired */
-  .recipe-card-buttons {
-    gap: 8px; /* Slightly smaller gap */
-  }
-
-  .modal-content {
-    max-width: 95%;
-    padding: 20px;
-    max-height: 90vh;
-  }
-
-  .modal-content h2 {
-    font-size: 1.4em;
-  }
-}
-
-@media (max-width: 480px) {
-  .recipes-section {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
-  }
-
-  .recipe-card img,
-  .recipe-card .placeholder-image {
-    height: 100px;
-  }
+.loading-text {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 20px 0;
+  text-align: center;
 }

@@ -1,4 +1,3 @@
-// AlertsPage.js
 import React, { useState, useContext, useRef } from "react";
 import { AlertsContext } from "../context/AlertsContext";
 import DatePicker from "react-datepicker";
@@ -9,6 +8,9 @@ import "./styles/AlertsPage.css";
 import backgroundImg from "../assets/background.jpg";
 import { useSpring, animated } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+
 
 const AlertsPage = () => {
   const { alerts, addAlert, updateAlert, removeAlert } =
@@ -29,14 +31,12 @@ const AlertsPage = () => {
     updateAlert(alert.id, { ...alert, checked: !alert.checked });
   };
 
-  // Move currentDate backward or forward by 'days' days
   const handleDateChange = (days) => {
     const newDate = new Date(currentDate);
     newDate.setDate(newDate.getDate() + days);
     setCurrentDate(newDate);
   };
 
-  // Open modal to create a new alert
   const openModalForNew = () => {
     setFormData({
       id: null,
@@ -49,9 +49,7 @@ const AlertsPage = () => {
     setShowModal(true);
   };
 
-  // Open modal to edit an existing alert
   const openModalForEdit = (alert) => {
-    // parse date string back into a Date
     setFormData({
       ...alert,
       date: new Date(alert.date),
@@ -63,49 +61,41 @@ const AlertsPage = () => {
     setShowModal(false);
   };
 
-  // Handle text or textarea changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle date change from DatePicker
   const handleDateSelect = (date) => {
     setFormData((prev) => ({ ...prev, date }));
   };
 
-  // Handle time change from TimePicker
   const handleTimeSelect = (time) => {
     setFormData((prev) => ({ ...prev, time }));
   };
 
-  // Save or update alert
   const handleSave = () => {
     if (!formData.title.trim()) return;
 
     if (formData.id) {
-      // Update existing alert
       const updatedAlert = {
         ...formData,
-        date: formData.date.toDateString(), // store as string
+        date: formData.date.toDateString(),
       };
       updateAlert(formData.id, updatedAlert);
     } else {
-      // Add new alert
       addAlert({
         ...formData,
-        date: formData.date.toDateString(), // store as string
+        date: formData.date.toDateString(),
       });
     }
     setShowModal(false);
   };
 
-  // Filter alerts to only those on the selected date
   const filteredAlerts = alerts.filter(
     (alert) => alert.date === currentDate.toDateString()
   );
 
-  // Convert "HH:mm" to 12-hour format
   const formatTimeTo12Hour = (time) => {
     if (!time) return "";
     let [hours, minutes] = time.split(":").map(Number);
@@ -114,7 +104,6 @@ const AlertsPage = () => {
     return `${hours}:${minutes.toString().padStart(2, "0")} ${amPm}`;
   };
 
-  //additions for scrolling
   const scrollRef = useRef();
   const modalScrollRef = useRef();
   const [{ y }, set] = useSpring(() => ({ y: 0 }));
@@ -191,6 +180,29 @@ const AlertsPage = () => {
         <button onClick={() => handleDateChange(1)}>&gt;</button>
       </div>
 
+
+      <div className="calendar-wrapper">
+        <Calendar
+          value={currentDate}
+          onChange={(date) => setCurrentDate(date)}
+          tileContent={({ date, view }) => {
+            if (view === 'month') {
+              const dayHasAlert = alerts.some(
+                (a) => new Date(a.date).toDateString() === date.toDateString()
+              );
+              return dayHasAlert ? <div className="alert-dot" /> : null;
+            }
+          }}
+          tileClassName={({ date, view }) =>
+            view === 'month' &&
+            alerts.some((a) => new Date(a.date).toDateString() === date.toDateString())
+              ? 'has-alert'
+              : null
+          }
+        />
+      </div>
+
+
       <ul className="alerts-list">
         {filteredAlerts.map((alert) => (
           <li
@@ -202,7 +214,7 @@ const AlertsPage = () => {
               type="checkbox"
               checked={alert.checked}
               onChange={(e) => {
-                e.stopPropagation(); // prevent opening modal on checkbox click
+                e.stopPropagation();
                 toggleChecked(alert);
               }}
             />
@@ -212,7 +224,7 @@ const AlertsPage = () => {
             <button
               className="delete-button"
               onClick={(e) => {
-                e.stopPropagation(); // prevent opening modal on delete click
+                e.stopPropagation();
                 removeAlert(alert.id);
               }}
             >
@@ -225,6 +237,8 @@ const AlertsPage = () => {
       <button className="add-button" onClick={openModalForNew}>
         + Schedule Alert
       </button>
+
+
 
       </animated.div>
     </div>
