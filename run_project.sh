@@ -25,6 +25,7 @@ fi
 {
   echo "REACT_APP_OPENAI_API_KEY=$OPENAI_API_KEY"
   echo "REACT_APP_SPOONACULAR_API_KEY=$SPOONACULAR_API_KEY"
+  echo "DANGEROUSLY_DISABLE_HOST_CHECK=true"
 } > ~/CS-Capstone/smart-fridge-web/.env
 
 
