@@ -33,6 +33,7 @@ export const RecipesProvider = ({ children }) => {
       console.error("Error adding recipe:", err);
     }
   };
+  
 
   const updateRecipe = async (id, { name, readyInMinutes, ingredients, image, instructions }) => {
     try {

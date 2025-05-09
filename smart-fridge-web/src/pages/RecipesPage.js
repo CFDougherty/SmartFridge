@@ -189,12 +189,16 @@ const RecipesPage = () => {
         <div className="recipes-section">
           {filteredRecipes.map(recipe => (
             <div key={recipe.id} className="recipe-card">
-              {recipe.image && <img src={recipe.image} alt={recipe.name} />}
+              {recipe.image && <img src={recipe.image} alt={recipe.name} draggable="false"/>}
               <h3>{recipe.name}</h3>
               {recipe.readyInMinutes > 0 && <p>Ready in: {recipe.readyInMinutes} mins</p>}
               <button onClick={() => showRecipeDetails(recipe)}>View</button>
               <button onClick={() => handleEditClick(recipe)}>Edit</button>
-              <button onClick={() => handleDelete(recipe.id)}>Delete</button>
+              <button classname="delete-button" onClick={() => {
+                if(window.confirm(`Are you sure you want to delete "${recipe.name}"?`)){
+                  handleDelete(recipe.id);
+                }
+              }}>Delete</button>
             </div>
           ))}
         </div>
