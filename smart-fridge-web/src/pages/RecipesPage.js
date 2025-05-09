@@ -35,8 +35,13 @@ const RecipesPage = () => {
   const [{ my }, setModalScroll] = useSpring(() => ({ my: 0 }));
 
   useEffect(() => {
+    if (!query.trim()){
+      setFilteredRecipes(recipes);
+      setNoResults(recipes.length === 0);
+    }
     setFilteredRecipes(recipes);
-  }, [recipes]);
+  }, [recipes, query]);
+
 
   const [loading, setLoading] = useState(false);
   const [noResults, setNoResults] = useState(false);
@@ -45,7 +50,7 @@ const RecipesPage = () => {
   const handleSearch = async () => {
     if (!query.trim()) {
       setFilteredRecipes(recipes);
-      setNoResults(false);
+      setNoResults(recipes.length === 0);
       return;
     }
 
@@ -59,6 +64,8 @@ const RecipesPage = () => {
       setNoResults(data.length === 0);
     } catch (error) {
       console.error("Search failed:", error);
+    } finally{
+      setLoading(false);
     }
   };
 
