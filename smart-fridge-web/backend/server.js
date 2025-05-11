@@ -18,7 +18,7 @@ const db = new sqlite3.Database("./smart-fridge.db", (err) => {
 });
 
 db.run(`CREATE TABLE IF NOT EXISTS recipes (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY,
   name TEXT,
   readyInMinutes INTEGER,
   ingredients TEXT,
@@ -62,73 +62,80 @@ app.delete("/fridge/clear", (req, res) => {
 
 // ============ RECIPES ENDPOINTS ============
 app.get("/recipes", (req, res) => {
-  let sql = "SELECT * FROM recipes"
-  const params = []
-
+  let sql = "SELECT * FROM recipes";
+  const params = [];
   if (req.query.search) {
     const terms = req.query.search
       .split(",")
       .map(s => s.trim())
-      .filter(Boolean)
-
+      .filter(Boolean);
     if (terms.length) {
-      const clauses = terms.map(() => "(name LIKE ? OR ingredients LIKE ?)").join(" AND ")
-      sql += " WHERE " + clauses
+      const clauses = terms.map(() => "(name LIKE ? OR ingredients LIKE ?)").join(" AND ");
+      sql += " WHERE " + clauses;
       terms.forEach(t => {
-        params.push(`%${t}%`)
-        params.push(`%${t}%`)
-      })
+        params.push(`%${t}%`);
+        params.push(`%${t}%`);
+      });
     }
   }
-
   db.all(sql, params, (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message })
-    res.json(rows)
-  })
-})
-
-
-
+    if (err) {
+      console.error("GET /recipes - Database Error:", err.message);
+      return res.status(500).json({ error: err.message }); 
+    }
+    const recipesWithArrayIngredients = rows.map(recipe => ({
+      ...recipe,
+      ingredients: recipe.ingredients ? recipe.ingredients.split(",").map(s => s.trim()) : []
+    }));
+    res.json(recipesWithArrayIngredients);
+  });
+});
 app.post("/recipes", (req, res) => {
-  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   // <-- changed
-  if (!name || readyInMinutes == null || !ingredients)                           // <-- changed
-    return res.status(400).json({ error: "Missing required fields" });
-
-  const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ") : ingredients;
-
+  const { id, name, readyInMinutes, ingredients, image, instructions } = req.body;
+  if (id == null || !name || readyInMinutes == null || ingredients == null) {
+    console.error("POST /recipes - Validation Error: Missing required fields.");
+    console.error(`Received: id=${id}, name=${name}, readyInMinutes=${readyInMinutes}, ingredients=${ingredients}`);
+    return res.status(400).json({ error: "Missing required fields: id, name, readyInMinutes, ingredients are required." });
+  }
+  const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ").trim() : (typeof ingredients === 'string' ? ingredients.trim() : "");
   db.run(
-    `INSERT INTO recipes (name, readyInMinutes, ingredients, image, instructions) VALUES (?, ?, ?, ?, ?)`, // <-- changed
-    [name, readyInMinutes, ingredientsStr, image || "", instructions || ""],                              // <-- changed
+    `INSERT OR REPLACE INTO recipes (id, name, readyInMinutes, ingredients, image, instructions) VALUES (?, ?, ?, ?, ?, ?)`,
+    [id, name, readyInMinutes, ingredientsStr, image || "", instructions || ""],
     function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: this.lastID,
+      if (err) {
+        console.error("POST /recipes - Database Error:", err.message);
+        return res.status(500).json({ error: "Database error: " + err.message });
+      }
+      console.log(`Recipe with ID ${id} (local DB lastID: ${this.lastID}) successfully inserted/replaced. Changes: ${this.changes}`);
+      res.status(201).json({ 
+        id: id, 
         name,
-        readyInMinutes,                                                          // <-- changed
-        ingredients: ingredientsStr.split(","),
+        readyInMinutes,
+        ingredients: ingredientsStr ? ingredientsStr.split(",").map(s => s.trim()) : [],
         image: image || "",
         instructions: instructions || ""
       });
     }
   );
 });
+
 
 
 
 app.put("/recipes/:id", (req, res) => {
-  const { id } = req.params;
-  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   // <-- changed
+  const paramId = req.params.id;
+  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   
 
   const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ") : ingredients;
   db.run(
-    `UPDATE recipes SET name = ?, readyInMinutes = ?, ingredients = ?, image = ?, instructions = ? WHERE id = ?`, // <-- changed & fixed typo
-    [name, readyInMinutes, ingredientsStr, image || "", instructions || "", id],                                    // <-- changed
+    `UPDATE recipes SET name = ?, readyInMinutes = ?, ingredients = ?, image = ?, instructions = ? WHERE id = ?`, 
+    [name, readyInMinutes, ingredientsStr, image || "", instructions || "", paramId],                                
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({
-        id: Number(id),
+        id: Number(paramId),
         name,
-        readyInMinutes,                                                      
+        readyInMinutes,                                                   
         ingredients: ingredientsStr.split(","),
         image: image || "",
         instructions: instructions || ""
@@ -136,6 +143,9 @@ app.put("/recipes/:id", (req, res) => {
     }
   );
 });
+
+
+
 
 
 
