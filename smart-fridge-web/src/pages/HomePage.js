@@ -45,7 +45,7 @@ const HomePage = () => {
         </div>
         <div className="card" onClick={() => navigate("/recipes")}>
           <h2>Recipes</h2>
-          <p>Sample: {firstRecipe.name}</p>
+          <p>Name: {firstRecipe.name}</p>
           <p>Ready in: {firstRecipe.readyInMinutes} minutes</p>
         </div>
         <div className="card" onClick={() => navigate("/alerts")}>
