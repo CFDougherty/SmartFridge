@@ -47,10 +47,6 @@ const HomePage = () => {
           <h2>Recipes</h2>
           <p>Sample: {firstRecipe.name}</p>
           <p>Ready in: {firstRecipe.readyInMinutes} minutes</p>
-          <p>Ingredients:</p>
-          <ul>
-            {Array.isArray(firstRecipe.ingredients) && firstRecipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}
-          </ul>
         </div>
         <div className="card" onClick={() => navigate("/alerts")}>
           <h2>Alerts</h2>
