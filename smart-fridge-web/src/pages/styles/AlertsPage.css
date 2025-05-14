@@ -232,7 +232,7 @@
 
 
 .calendar-wrapper {
-  max-width: 470px;
+  max-width: 90%;
   width: 100%;
   margin: 40px auto;
   background: rgba(255,255,255,0.85);
