@@ -22,7 +22,7 @@ db.run(`CREATE TABLE IF NOT EXISTS recipes (
   name TEXT,
   readyInMinutes INTEGER,
   ingredients TEXT,
-  image BLOB,
+  image TEXT,
   instructions TEXT
 )`);
 
