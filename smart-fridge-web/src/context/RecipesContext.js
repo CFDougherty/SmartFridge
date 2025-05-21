@@ -21,7 +21,10 @@ export const RecipesProvider = ({ children }) => {
 
   const addRecipe = async ({ name, readyInMinutes, ingredients, image, instructions }) => {
     try {
+      const personalID = -Math.abs(Date.now());
+      
       const res = await axios.post("http://localhost:5001/recipes", {
+        id : personalID,
         name,
         readyInMinutes,
         ingredients,

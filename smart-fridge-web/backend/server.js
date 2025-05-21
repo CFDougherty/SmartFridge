@@ -22,7 +22,7 @@ db.run(`CREATE TABLE IF NOT EXISTS recipes (
   name TEXT,
   readyInMinutes INTEGER,
   ingredients TEXT,
-  image TEXT,
+  image BLOB,
   instructions TEXT
 )`);
 
@@ -61,6 +61,7 @@ app.delete("/fridge/clear", (req, res) => {
 });
 
 // ============ RECIPES ENDPOINTS ============
+
 app.get("/recipes", (req, res) => {
   let sql = "SELECT * FROM recipes";
   const params = [];
@@ -90,6 +91,7 @@ app.get("/recipes", (req, res) => {
     res.json(recipesWithArrayIngredients);
   });
 });
+
 app.post("/recipes", (req, res) => {
   const { id, name, readyInMinutes, ingredients, image, instructions } = req.body;
   if (id == null || !name || readyInMinutes == null || ingredients == null) {
