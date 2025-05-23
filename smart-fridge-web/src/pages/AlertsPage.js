@@ -210,14 +210,6 @@ const AlertsPage = () => {
             className="alert-item"
             onClick={() => openModalForEdit(alert)}
           >
-            <input
-              type="checkbox"
-              checked={alert.checked}
-              onChange={(e) => {
-                e.stopPropagation();
-                toggleChecked(alert);
-              }}
-            />
             <span className="alert-name">
               {alert.title} ({formatTimeTo12Hour(alert.time)})
             </span>
@@ -237,8 +229,6 @@ const AlertsPage = () => {
       <button className="add-button" onClick={openModalForNew}>
         + Schedule Alert
       </button>
-
-
 
       </animated.div>
     </div>
