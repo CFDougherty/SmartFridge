@@ -194,7 +194,6 @@ const RecipesPage = () => {
               {recipe.readyInMinutes > 0 && <p>Ready in: {recipe.readyInMinutes} mins</p>}
               <button onClick={() => showRecipeDetails(recipe)}>View</button>
               <button onClick={() => handleEditClick(recipe)}>Edit</button>
-              <button onClick={() => handleDelete(recipe.id)}>Delete</button>
             </div>
           ))}
         </div>
@@ -203,7 +202,16 @@ const RecipesPage = () => {
       {showModal && (
         <div className="modal" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h2>{editingId ? "Edit Recipe" : "Add Recipe"}</h2>
+            <div className="modal-header">
+              <h2>{editingId ? "Edit Recipe" : "Add Recipe"}</h2>
+              {editingId && (
+                <button className="modal-delete-button"
+                  onClick={() => {
+                    removeRecipe(editingId);
+                    setShowModal(false);
+                  }}>Delete</button>
+              )}
+            </div>
             <label>Name: <input type="text" name="name" value={formData.name} onChange={handleInputChange} /></label>
             <label>Ready in Minutes: <input type="number" name="readyInMinutes" value={formData.readyInMinutes} onChange={handleInputChange} /></label>
             <label>Ingredients (comma-separated): <textarea name="ingredients" value={formData.ingredients} onChange={handleInputChange} /></label>
