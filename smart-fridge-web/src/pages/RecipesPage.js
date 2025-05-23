@@ -158,7 +158,7 @@ const RecipesPage = () => {
             {selectedRecipe.instructions
               ? <div dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }} />
               : <p>No instructions provided.</p>}
-            <button onClick={closeRecipeDetails}>Close</button>
+            <button className="recipe-card button" onClick={closeRecipeDetails}>Close</button>
           </animated.div>
         </div>
       )}
