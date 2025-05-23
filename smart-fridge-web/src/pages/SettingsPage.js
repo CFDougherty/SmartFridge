@@ -11,7 +11,6 @@ const SettingsPage = () => {
     "Brightness",
     "Screen Timeout",
     "Diet Restrictions",
-    "Payment Preference",
   ];
 
   return (
