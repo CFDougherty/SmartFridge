@@ -67,11 +67,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.alert-item input[type="checkbox"] {
-  margin-right: 10px;
-  cursor: pointer;
-}
-
 .alert-name {
   flex-grow: 1;
 }
