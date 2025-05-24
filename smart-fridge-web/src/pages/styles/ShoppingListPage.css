@@ -202,5 +202,25 @@
 }
 
 .modal-buttons button:nth-child(2):hover {
-  background-color: #5a00b3;
+  background-color: hsl(270, 100%, 35%);
+}
+
+
+.qr-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+.modal-content button {
+  background-color: #3b016a;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.modal-content button:hover {
+  background-color: #23003f;
 }
