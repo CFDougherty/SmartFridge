@@ -21,7 +21,7 @@ const HomePage = () => {
   const weekday = today.toLocaleDateString("en-US", { weekday: "long" })
   const month   = today.toLocaleDateString("en-US", { month:   "short" })
   const day     = today.getDate()
-  const formattedDate = `${weekday}, ${month} ${day}`
+  const formattedDate = `${weekday}, ${month}. ${day}`
 
   return (
     <div className="home-container" style={{ backgroundImage: `url(${backgroundImg})` }}>
