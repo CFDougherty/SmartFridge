@@ -20,6 +20,7 @@ const RecipesPage = () => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -126,6 +127,21 @@ const RecipesPage = () => {
     setShowModal(false);
   };
 
+  const handleImageUpload = (event) =>{
+    const file = event.target.files[0];
+
+    if(file){
+      const reader = new FileReader();
+      reader.onloadend = () =>{
+        setImagePreview(reader.result);
+        setFormData(prev => ({...prev, image:reader.result}));
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+  }
+
   const handleDelete = id => removeRecipe(id);
 
   const bind = useGesture(
@@ -215,7 +231,26 @@ const RecipesPage = () => {
             <label>Name: <input type="text" name="name" value={formData.name} onChange={handleInputChange} /></label>
             <label>Ready in Minutes: <input type="number" name="readyInMinutes" value={formData.readyInMinutes} onChange={handleInputChange} /></label>
             <label>Ingredients (comma-separated): <textarea name="ingredients" value={formData.ingredients} onChange={handleInputChange} /></label>
-            <label>Image URL: <input type="text" name="image" value={formData.image} onChange={handleInputChange} /></label>
+            <label>Recipe Image:
+              <div className="image-upload-wrapper">
+                <div className="file-input-container">
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageUpload} 
+                    className="file-input"
+                  />
+                </div>
+                
+                {imagePreview && (
+                  <div className="image-preview-container">
+                    <img src={imagePreview} alt="Recipe preview" />
+                  </div>
+                )}
+              </div>
+            </label>
+              
+
             <label>Instructions: <textarea name="instructions" value={formData.instructions} onChange={handleInputChange} /></label>
             <div className="modal-buttons">
               <button onClick={() => setShowModal(false)}>Cancel</button>
