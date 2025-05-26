@@ -22,10 +22,10 @@ export const ShoppingListProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5001/shopping-list")
+    remoteHandler((base) => axios.get(`${base}/shopping-list`))
       .then((res) => setShoppingListItems(res.data))
-      .catch((err) => console.error("Error fetching shopping list:", err));
+      .catch(() => {
+      });
   }, []);
 
   const addItem = async (item) => {
