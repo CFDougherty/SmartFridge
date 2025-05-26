@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
@@ -6,6 +5,21 @@ export const ShoppingListContext = createContext();
 
 export const ShoppingListProvider = ({ children }) => {
   const [shoppingListItems, setShoppingListItems] = useState([]);
+
+  // Replaced repetitive stuff with function
+  const remoteHandler = async (request) => {
+    try {
+      return await request("http://localhost:5001");
+    } catch (err1) {
+      console.warn("Localhost failed, trying pidisp...");
+      try {
+        return await request("http://pidisp:5001");
+      } catch (err2) {
+        console.error("Failure in remote:", err2);
+        throw err2;
+      }
+    }
+  };
 
   useEffect(() => {
     axios
@@ -16,30 +30,31 @@ export const ShoppingListProvider = ({ children }) => {
 
   const addItem = async (item) => {
     try {
-      const res = await axios.post("http://localhost:5001/shopping-list", item);
+      const res = await remoteHandler((base) =>
+        axios.post(`${base}/shopping-list`, item)
+      );
       setShoppingListItems((prev) => [...prev, res.data]);
-    } catch (err) {
-      console.error("Error adding item:", err);
-    }
+    } catch (_) {}
   };
+
   const updateItem = async (id, newData) => {
     try {
-      const res = await axios.put(`http://localhost:5001/shopping-list/${id}`, newData);
+      const res = await remoteHandler((base) =>
+        axios.put(`${base}/shopping-list/${id}`, newData)
+      );
       setShoppingListItems((prev) =>
         prev.map((item) => (item.id === id ? res.data : item))
       );
-    } catch (err) {
-      console.error("Error updating item:", err);
-    }
+    } catch (_) {}
   };
 
   const removeItem = async (id) => {
     try {
-      await axios.delete(`http://localhost:5001/shopping-list/${id}`);
+      await remoteHandler((base) =>
+        axios.delete(`${base}/shopping-list/${id}`)
+      );
       setShoppingListItems((prev) => prev.filter((item) => item.id !== id));
-    } catch (err) {
-      console.error("Error removing item:", err);
-    }
+    } catch (_) {}
   };
 
   return (
