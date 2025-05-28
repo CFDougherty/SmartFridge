@@ -42,6 +42,19 @@ const RecipesPage = () => {
   const [loading, setLoading] = useState(false);
   const [noResults, setNoResults] = useState(false);
 
+  const remoteHandler = async (request) => {
+    try {
+      return await request("http://localhost:5001");
+    } catch (err1) {
+      console.warn("Localhost failed, trying pidisp...");
+      try {
+        return await request("http://pidisp:5001");
+      } catch (err2) {
+        console.error("Failure in remote", err2);
+        throw err2;
+      }
+    }
+  };
 
   const handleSearch = async () => {
     if (!query.trim()) {
@@ -51,12 +64,11 @@ const RecipesPage = () => {
     }
 
     try {
-      const res = await fetch(
-        `http://localhost:5001/recipes?search=${encodeURIComponent(query)}`
+      const res = await remoteHandler((base) =>
+        fetch(`${base}/recipes?search=${encodeURIComponent(query)}`)
       );
       const data = await res.json();
       setFilteredRecipes(data);
-      // <-- new:
       setNoResults(data.length === 0);
     } catch (error) {
       console.error("Search failed:", error);

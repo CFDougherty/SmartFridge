@@ -4,16 +4,30 @@ import axios from "axios";
 
 export const BarcodesContext = createContext();
 
+// Might be over engineered using a function call for this... But keeps it consistent
 export const BarcodesProvider = ({ children }) => {
-  const BASE_URL = "http://localhost:5001/barcodes/lookup";
+  const remoteHandler = async (request) => {
+    try {
+      return await request("http://localhost:5001");
+    } catch (err1) {
+      console.warn("Localhost failed, trying pidisp...");
+      try {
+        return await request("http://pidisp:5001");
+      } catch (err2) {
+        console.error("Failure in remote:", err2);
+        throw err2;
+      }
+    }
+  };
 
   const lookupBarcode = async (code) => {
     try {
-      const res = await axios.get(`${BASE_URL}/${code}`);
+      const res = await remoteHandler((base) =>
+        axios.get(`${base}/barcodes/lookup/${code}`)
+      );
       // Expect: { found: boolean, productName: string }
       return res.data;
-    } catch (error) {
-      console.error("Barcode lookup error:", error);
+    } catch (_) {
       return { found: false, productName: "" };
     }
   };

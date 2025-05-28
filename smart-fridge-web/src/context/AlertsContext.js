@@ -6,11 +6,25 @@ export const AlertsContext = createContext();
 export const AlertsProvider = ({ children }) => {
   const [alerts, setAlerts] = useState([]);
 
+  // Replaced repetitive stuff with function
+  const remoteHandler = async (request) => {
+    try {
+      return await request("http://localhost:5001");
+    } catch (err1) {
+      console.warn("Localhost failed, trying pidisp...");
+      try {
+        return await request("http://pidisp:5001");
+      } catch (err2) {
+        console.error("Failure in remote:", err2);
+        throw err2;
+      }
+    }
+  };
+
   useEffect(() => {
-    axios
-      .get("http://localhost:5001/alerts")
+    remoteHandler((base) => axios.get(`${base}/alerts`))
       .then((res) => setAlerts(res.data))
-      .catch((err) => console.error("Error fetching alerts:", err));
+      .catch(() => {});
   }, []);
 
   const addAlert = async (alertData) => {
@@ -24,24 +38,24 @@ export const AlertsProvider = ({ children }) => {
 
   const updateAlert = async (id, newData) => {
     try {
-      const res = await axios.put(`http://localhost:5001/alerts/${id}`, newData);
+      const res = await remoteHandler((base) =>
+        axios.put(`${base}/alerts/${id}`, newData)
+      );
       setAlerts((prev) => prev.map((a) => (a.id === id ? res.data : a)));
-    } catch (err) {
-      console.error("Error updating alert:", err);
-    }
+    } catch (_) {}
   };
 
   const removeAlert = async (id) => {
     try {
-      await axios.delete(`http://localhost:5001/alerts/${id}`);
+      await remoteHandler((base) => axios.delete(`${base}/alerts/${id}`));
       setAlerts((prev) => prev.filter((a) => a.id !== id));
-    } catch (err) {
-      console.error("Error removing alert:", err);
-    }
+    } catch (_) {}
   };
 
   return (
-    <AlertsContext.Provider value={{ alerts, addAlert, updateAlert, removeAlert }}>
+    <AlertsContext.Provider
+      value={{ alerts, addAlert, updateAlert, removeAlert }}
+    >
       {children}
     </AlertsContext.Provider>
   );
