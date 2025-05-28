@@ -345,6 +345,24 @@ app.get("/camera-image", async (req, res) => {
   }
 });
 
+app.get("/proxy-image", async (req, res) => {
+  try {
+    const imageUrl = req.query.url;
+    if (!imageUrl) return res.status(400).send("No URL provided");
+    
+    const response = await fetch(imageUrl);
+    if (!response.ok) throw new Error("Failed to fetch image");
+    
+    const contentType = response.headers.get("content-type");
+    res.set("Content-Type", contentType);
+    
+    response.body.pipe(res);
+  } catch (error) {
+    console.error("Error fetching image:", error);
+    res.status(500).send("Error fetching image");
+  }
+});
+
 // OPTIONAL daily expiry update
 setInterval(() => {
   console.log("Updating expiry tracking...");

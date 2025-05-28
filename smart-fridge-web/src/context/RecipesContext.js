@@ -68,6 +68,27 @@ export const RecipesProvider = ({ children }) => {
     );
   };
 
+const convertImageToDataUrl = async (url) => {
+  const proxyUrl = `http://localhost:5001/proxy-image?url=${encodeURIComponent(url)}`;
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      const dataUrl = canvas.toDataURL("image/jpeg", 1);
+      resolve(dataUrl);
+    };
+    img.onerror = () => reject(new Error("Image Loading Failed"));
+    img.src = proxyUrl;
+  });
+};
+    
+  
+
 
   const fetchMoreRecipesFromSpoonacular = async (searchTerm = "") => {
     const apiKey = "6dacd1bf57fc4f27be8752284f04b8cd";
@@ -88,6 +109,16 @@ export const RecipesProvider = ({ children }) => {
   
       for (const r of newRecipes) {
         const { id, title, readyInMinutes, image, instructions: rawInstructions, analyzedInstructions } = r;
+
+        let imageDataUrl = image;
+        if(image){
+          try{
+            imageDataUrl = await convertImageToDataUrl(image);
+            
+          } catch(error){
+            console.error("Failed to convert image: ", error);
+          }
+        }
   
         let ingredientList = [];
         try {
@@ -111,7 +142,7 @@ export const RecipesProvider = ({ children }) => {
           name: title,
           readyInMinutes,
           ingredients: ingredientList,
-          image: image || "",
+          image: imageDataUrl,
           instructions: instructionsText || ""
         });
       }
