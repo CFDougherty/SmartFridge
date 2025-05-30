@@ -172,7 +172,7 @@ const RecipesPage = () => {
         <div className="modal" onClick={closeRecipeDetails}>
           <animated.div ref={modalScrollRef} className="modal-content" {...modalBind()} onClick={e => e.stopPropagation()}>
             <h2>{selectedRecipe.name}</h2>
-            {selectedRecipe.image && <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.name} />}
+            {selectedRecipe.image && <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.name} draggable="false"/>}
             <p><strong>Ingredients:</strong></p>
             <ul>
               {Array.isArray(selectedRecipe.ingredients)
@@ -256,7 +256,7 @@ const RecipesPage = () => {
                 
                 {imagePreview && (
                   <div className="image-preview-container">
-                    <img src={imagePreview} alt="Recipe preview" />
+                    <img src={imagePreview} alt="Recipe preview" draggable="false"/>
                   </div>
                 )}
               </div>
