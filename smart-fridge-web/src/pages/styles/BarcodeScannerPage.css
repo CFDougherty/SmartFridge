@@ -1,22 +1,127 @@
 /* src/pages/styles/BarcodeScannerPage.css */
 .barcode-scanner-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-  }
-  
-  .scanner-wrapper {
-    border: 2px dashed #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-    position: relative;
-  }
-  
-  .not-found-section {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.scanner-wrapper {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.not-found-section {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.not-found-section input {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.not-found-section button {
+  padding: 10px 20px;
+  background-color: #3b016a;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.image-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.file-input-container {
+  width: 100%;
+}
+
+.file-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.image-preview-container {
+  width: 100%;
+  max-width: 300px;
+  height: 200px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f8f8;
+  margin-top: 15px;
+}
+
+.image-preview-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin-top: 10px;
+}
+
+.processing-message {
+  color: #2196f3;
+  margin-top: 10px;
+}
+
+.manual-entry {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+  width: 100%;
+}
+
+.manual-entry h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.manual-input-container {
+  display: flex;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.manual-input-container input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px 0 0 5px;
+}
+
+.manual-input-container button {
+  padding: 10px 15px;
+  background-color: #3b016a;
+  color: white;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+}
