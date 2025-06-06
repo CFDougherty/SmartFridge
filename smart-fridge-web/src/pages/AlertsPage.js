@@ -22,7 +22,7 @@ const AlertsPage = () => {
     id: null,
     title: "",
     description: "",
-    date: new Date(),
+    date: new Date(currentDate),
     time: "12:00",
     checked: false,
   });
@@ -42,7 +42,7 @@ const AlertsPage = () => {
       id: null,
       title: "",
       description: "",
-      date: new Date(),
+      date: new Date(currentDate),
       time: "12:00",
       checked: false,
     });
@@ -229,6 +229,8 @@ const AlertsPage = () => {
       <button className="add-button" onClick={openModalForNew}>
         + Schedule Alert
       </button>
+
+
 
       </animated.div>
     </div>
