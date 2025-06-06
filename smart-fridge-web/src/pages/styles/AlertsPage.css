@@ -67,11 +67,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.alert-item input[type="checkbox"] {
-  margin-right: 10px;
-  cursor: pointer;
-}
-
 .alert-name {
   flex-grow: 1;
 }
@@ -184,7 +179,7 @@
 .react-time-picker__wrapper {
   border: none; 
   border-radius: 5px;
-  padding: 0.1em; 
+  padding: 0.2em; 
   display: flex; 
   align-items: center; 
   height: fit-content;
@@ -195,13 +190,13 @@
 .react-time-picker__inputGroup {
   display: flex;
   align-items: center;
-  gap: 0.1em; 
+  gap: 0.2em; 
   font-size: 1rem;
 }
 
 .react-time-picker__inputGroup__input {
   height: 2em;
-  width: 3em; 
+  width: 5em; 
   text-align: center;
   font-size: 1rem;
   margin: 0;
@@ -232,7 +227,7 @@
 
 
 .calendar-wrapper {
-  max-width: 500px;
+  max-width: 80%;
   width: 100%;
   margin: 40px auto;
   background: rgba(255,255,255,0.85);

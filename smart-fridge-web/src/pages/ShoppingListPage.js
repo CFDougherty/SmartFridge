@@ -54,6 +54,17 @@ const ShoppingListPage = () => {
     setAutoAdd((prev) => !prev);
   };
 
+  const deleteCheckedItem = () =>{
+    shoppingListItems.forEach(element => {
+      if(element.checked){
+        removeItem(element.id);
+      }
+      
+    });
+  }
+
+  
+
   const placeOrder = () => {
     alert("Order placed!");
   };
@@ -114,11 +125,9 @@ const ShoppingListPage = () => {
       </ul>
 
       <button className="add-item-button" onClick={() => openModal()}>+ Add Item</button>
-      <button className="place-order-button" onClick={placeOrder}>Place Order</button>
+      <button className="add-item-button" onClick={() => deleteCheckedItem()}>Delete Checked</button>
       
       </animated.div>
-
-      <button className="auto-add-button" onClick={toggleAutoAdd}>{autoAdd ? "Auto-Add Enabled" : "Auto-Add Disabled"}</button>
     </div>
   );
 };

@@ -20,6 +20,7 @@ const RecipesPage = () => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -41,6 +42,19 @@ const RecipesPage = () => {
   const [loading, setLoading] = useState(false);
   const [noResults, setNoResults] = useState(false);
 
+  const remoteHandler = async (request) => {
+    try {
+      return await request("http://localhost:5001");
+    } catch (err1) {
+      console.warn("Localhost failed, trying pidisp...");
+      try {
+        return await request("http://pidisp:5001");
+      } catch (err2) {
+        console.error("Failure in remote", err2);
+        throw err2;
+      }
+    }
+  };
 
   const handleSearch = async () => {
     if (!query.trim()) {
@@ -50,12 +64,11 @@ const RecipesPage = () => {
     }
 
     try {
-      const res = await fetch(
-        `http://localhost:5001/recipes?search=${encodeURIComponent(query)}`
+      const res = await remoteHandler((base) =>
+        fetch(`${base}/recipes?search=${encodeURIComponent(query)}`)
       );
       const data = await res.json();
       setFilteredRecipes(data);
-      // <-- new:
       setNoResults(data.length === 0);
     } catch (error) {
       console.error("Search failed:", error);
@@ -126,6 +139,21 @@ const RecipesPage = () => {
     setShowModal(false);
   };
 
+  const handleImageUpload = (event) =>{
+    const file = event.target.files[0];
+
+    if(file){
+      const reader = new FileReader();
+      reader.onloadend = () =>{
+        setImagePreview(reader.result);
+        setFormData(prev => ({...prev, image:reader.result}));
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+  }
+
   const handleDelete = id => removeRecipe(id);
 
   const bind = useGesture(
@@ -144,7 +172,7 @@ const RecipesPage = () => {
         <div className="modal" onClick={closeRecipeDetails}>
           <animated.div ref={modalScrollRef} className="modal-content" {...modalBind()} onClick={e => e.stopPropagation()}>
             <h2>{selectedRecipe.name}</h2>
-            {selectedRecipe.image && <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.name} />}
+            {selectedRecipe.image && <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.name} draggable="false"/>}
             <p><strong>Ingredients:</strong></p>
             <ul>
               {Array.isArray(selectedRecipe.ingredients)
@@ -158,7 +186,7 @@ const RecipesPage = () => {
             {selectedRecipe.instructions
               ? <div dangerouslySetInnerHTML={{ __html: selectedRecipe.instructions }} />
               : <p>No instructions provided.</p>}
-            <button onClick={closeRecipeDetails}>Close</button>
+            <button className="recipe-card button" onClick={closeRecipeDetails}>Close</button>
           </animated.div>
         </div>
       )}
@@ -194,11 +222,6 @@ const RecipesPage = () => {
               {recipe.readyInMinutes > 0 && <p>Ready in: {recipe.readyInMinutes} mins</p>}
               <button onClick={() => showRecipeDetails(recipe)}>View</button>
               <button onClick={() => handleEditClick(recipe)}>Edit</button>
-              <button classname="delete-button" onClick={() => {
-                if(window.confirm(`Are you sure you want to delete "${recipe.name}"?`)){
-                  handleDelete(recipe.id);
-                }
-              }}>Delete</button>
             </div>
           ))}
         </div>
@@ -207,11 +230,39 @@ const RecipesPage = () => {
       {showModal && (
         <div className="modal" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h2>{editingId ? "Edit Recipe" : "Add Recipe"}</h2>
+            <div className="modal-header">
+              <h2>{editingId ? "Edit Recipe" : "Add Recipe"}</h2>
+              {editingId && (
+                <button className="modal-delete-button"
+                  onClick={() => {
+                    removeRecipe(editingId);
+                    setShowModal(false);
+                  }}>Delete</button>
+              )}
+            </div>
             <label>Name: <input type="text" name="name" value={formData.name} onChange={handleInputChange} /></label>
             <label>Ready in Minutes: <input type="number" name="readyInMinutes" value={formData.readyInMinutes} onChange={handleInputChange} /></label>
             <label>Ingredients (comma-separated): <textarea name="ingredients" value={formData.ingredients} onChange={handleInputChange} /></label>
-            <label>Image URL: <input type="text" name="image" value={formData.image} onChange={handleInputChange} /></label>
+            <label>Recipe Image:
+              <div className="image-upload-wrapper">
+                <div className="file-input-container">
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageUpload} 
+                    className="file-input"
+                  />
+                </div>
+                
+                {imagePreview && (
+                  <div className="image-preview-container">
+                    <img src={imagePreview} alt="Recipe preview" draggable="false"/>
+                  </div>
+                )}
+              </div>
+            </label>
+              
+
             <label>Instructions: <textarea name="instructions" value={formData.instructions} onChange={handleInputChange} /></label>
             <div className="modal-buttons">
               <button onClick={() => setShowModal(false)}>Cancel</button>

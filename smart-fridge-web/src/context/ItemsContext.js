@@ -4,56 +4,63 @@ import axios from "axios";
 export const ItemsContext = createContext();
 
 export const ItemsProvider = ({ children }) => {
-  
-    const [items, setItems] = useState([]);
+  const [items, setItems] = useState([]);
 
-    const fetchItems = useCallback(async () => {
-        try {
-            const res = await axios.get("http://localhost:5001/fridge");
-            setItems(res.data);
-        } catch (err) {
-            console.error("Error fetching items:", err);
-        }
-    }, []);
+  // Replaced repetitive stuff with function
+  const remoteHandler = async (request) => {
+    try {
+      return await request("http://localhost:5001");
+    } catch (err1) {
+      console.warn("Localhost failed, trying pidisp...");
+      try {
+        return await request("http://pidisp:5001");
+      } catch (err2) {
+        console.error("Failure in remote:", err2);
+        throw err2;
+      }
+    }
+  };
 
-    useEffect(() => {
-        fetchItems();
-    }, [fetchItems]);
+  const fetchItems = useCallback(async () => {
+    try {
+      const res = await remoteHandler((base) => axios.get(`${base}/fridge`));
+      setItems(res.data);
+    } catch (_) {
+    }
+  }, []);
 
-    const addItem = async (item) => {
-        try {
-            const res = await axios.post("http://localhost:5001/fridge", item);
-            setItems((prevItems) => [...prevItems, res.data]);
-            return res.data;
-        } catch (err) {
-            console.error("Error adding item:", err);
-            return null;
-        }
-    };
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
-    const updateItem = async (id, newData) => {
-        try {
-            await axios.put(`http://localhost:5001/fridge/${id}`, newData);
-    
-            const res = await axios.get("http://localhost:5001/fridge"); 
-            setItems(res.data);
-    
-        } catch (err) {
-            console.error("Error updating item:", err);
-        }
-    };
-    
+  const addItem = async (item) => {
+    try {
+      const res = await remoteHandler((base) => axios.post(`${base}/fridge`, item));
+      setItems((prevItems) => [...prevItems, res.data]);
+      return res.data;
+    } catch (_) {
+      return null;
+    }
+  };
 
-    const removeItem = async (id) => {
-        try {
-            await axios.delete(`http://localhost:5001/fridge/${id}`);
-            setItems((prevItems) => prevItems.filter((item) => item.id !== id));
-        } catch (err) {
-            console.error("Error removing item:", err);
-        }
-    };
+  const updateItem = async (id, newData) => {
+    try {
+      await remoteHandler((base) => axios.put(`${base}/fridge/${id}`, newData));
+      const res = await remoteHandler((base) => axios.get(`${base}/fridge`));
+      setItems(res.data);
+    } catch (_) {
+    }
+  };
 
-    return (
+  const removeItem = async (id) => {
+    try {
+      await remoteHandler((base) => axios.delete(`${base}/fridge/${id}`));
+      setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    } catch (_) {
+    }
+  };
+
+  return (
         <ItemsContext.Provider value={{ items, fetchItems, addItem, updateItem, removeItem }}>
             {children}
         </ItemsContext.Provider>

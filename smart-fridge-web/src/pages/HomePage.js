@@ -17,9 +17,15 @@ const HomePage = () => {
   const upcomingAlerts = alerts.slice(0, 3)
   const navigate = useNavigate()
 
+  const today = new Date()
+  const weekday = today.toLocaleDateString("en-US", { weekday: "long" })
+  const month   = today.toLocaleDateString("en-US", { month:   "short" })
+  const day     = today.getDate()
+  const formattedDate = `${weekday}, ${month}. ${day}`
+
   return (
     <div className="home-container" style={{ backgroundImage: `url(${backgroundImg})` }}>
-      <h1 className="home-header">Friday, Nov. 1</h1>
+      <h1 className="home-header">{formattedDate}</h1>
       <div className="grid-container">
         <div className="card" onClick={() => navigate("/items")}>
           <h2>Items in Fridge</h2>
@@ -45,12 +51,8 @@ const HomePage = () => {
         </div>
         <div className="card" onClick={() => navigate("/recipes")}>
           <h2>Recipes</h2>
-          <p>Sample: {firstRecipe.name}</p>
+          <p>Name: {firstRecipe.name}</p>
           <p>Ready in: {firstRecipe.readyInMinutes} minutes</p>
-          <p>Ingredients:</p>
-          <ul>
-            {Array.isArray(firstRecipe.ingredients) && firstRecipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}
-          </ul>
         </div>
         <div className="card" onClick={() => navigate("/alerts")}>
           <h2>Alerts</h2>

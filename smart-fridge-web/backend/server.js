@@ -2,11 +2,12 @@ const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 const axios = require("axios");
-//const fetch = require("node-fetch"); 
+const fetch = require("node-fetch"); 
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({limit: '10mb'}));
+app.use(express.urlencoded({extended: true, limit: '10mb'}));
 
 
 const db = new sqlite3.Database("./smart-fridge.db", (err) => {
@@ -18,7 +19,7 @@ const db = new sqlite3.Database("./smart-fridge.db", (err) => {
 });
 
 db.run(`CREATE TABLE IF NOT EXISTS recipes (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY,
   name TEXT,
   readyInMinutes INTEGER,
   ingredients TEXT,
@@ -51,15 +52,6 @@ db.run(`CREATE TABLE IF NOT EXISTS fridge (
   expiry TEXT
 )`);
 
-// Clear alerts and fridge tables on startup (for demo purposes)
-db.run("DELETE FROM alerts", (err) => {
-  if (err) console.error("Error clearing alerts:", err.message);
-  else console.log("Alerts table cleared on startup.");
-});
-db.run("DELETE FROM fridge", (err) => {
-  if (err) console.error("Error clearing fridge contents:", err.message);
-  else console.log("Fridge table cleared on startup.");
-});
 
 
 app.delete("/fridge/clear", (req, res) => {
@@ -70,74 +62,83 @@ app.delete("/fridge/clear", (req, res) => {
 });
 
 // ============ RECIPES ENDPOINTS ============
-app.get("/recipes", (req, res) => {
-  let sql = "SELECT * FROM recipes"
-  const params = []
 
+app.get("/recipes", (req, res) => {
+  let sql = "SELECT * FROM recipes";
+  const params = [];
   if (req.query.search) {
     const terms = req.query.search
       .split(",")
       .map(s => s.trim())
-      .filter(Boolean)
-
+      .filter(Boolean);
     if (terms.length) {
-      const clauses = terms.map(() => "(name LIKE ? OR ingredients LIKE ?)").join(" AND ")
-      sql += " WHERE " + clauses
+      const clauses = terms.map(() => "(name LIKE ? OR ingredients LIKE ?)").join(" AND ");
+      sql += " WHERE " + clauses;
       terms.forEach(t => {
-        params.push(`%${t}%`)
-        params.push(`%${t}%`)
-      })
+        params.push(`%${t}%`);
+        params.push(`%${t}%`);
+      });
     }
   }
-
   db.all(sql, params, (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message })
-    res.json(rows)
-  })
-})
-
-
+    if (err) {
+      console.error("GET /recipes - Database Error:", err.message);
+      return res.status(500).json({ error: err.message }); 
+    }
+    const recipesWithArrayIngredients = rows.map(recipe => ({
+      ...recipe,
+      ingredients: recipe.ingredients ? recipe.ingredients.split(",").map(s => s.trim()) : []
+    }));
+    res.json(recipesWithArrayIngredients);
+  });
+});
 
 app.post("/recipes", (req, res) => {
-  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   // <-- changed
-  if (!name || readyInMinutes == null || !ingredients)                           // <-- changed
-    return res.status(400).json({ error: "Missing required fields" });
-
-  const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ") : ingredients;
-
+  const { id, name, readyInMinutes, ingredients, image, instructions } = req.body;
+  if (id == null || !name || readyInMinutes == null || ingredients == null) {
+    console.error("POST /recipes - Validation Error: Missing required fields.");
+    console.error(`Received: id=${id}, name=${name}, readyInMinutes=${readyInMinutes}, ingredients=${ingredients}`);
+    return res.status(400).json({ error: "Missing required fields: id, name, readyInMinutes, ingredients are required." });
+  }
+  const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ").trim() : (typeof ingredients === 'string' ? ingredients.trim() : "");
   db.run(
-    `INSERT INTO recipes (name, readyInMinutes, ingredients, image, instructions) VALUES (?, ?, ?, ?, ?)`, // <-- changed
-    [name, readyInMinutes, ingredientsStr, image || "", instructions || ""],                              // <-- changed
+    `INSERT OR REPLACE INTO recipes (id, name, readyInMinutes, ingredients, image, instructions) VALUES (?, ?, ?, ?, ?, ?)`,
+    [id, name, readyInMinutes, ingredientsStr, image || "", instructions || ""],
     function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: this.lastID,
+      if (err) {
+        console.error("POST /recipes - Database Error:", err.message);
+        return res.status(500).json({ error: "Database error: " + err.message });
+      }
+      console.log(`Recipe with ID ${id} (local DB lastID: ${this.lastID}) successfully inserted/replaced. Changes: ${this.changes}`);
+      res.status(201).json({ 
+        id: id, 
         name,
-        readyInMinutes,                                                          // <-- changed
-        ingredients: ingredientsStr.split(","),
+        readyInMinutes,
+        ingredients: ingredientsStr ? ingredientsStr.split(",").map(s => s.trim()) : [],
         image: image || "",
         instructions: instructions || ""
       });
     }
   );
 });
+
 
 
 
 app.put("/recipes/:id", (req, res) => {
-  const { id } = req.params;
-  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   // <-- changed
+  const paramId = req.params.id;
+  const { name, readyInMinutes, ingredients, image, instructions } = req.body;   
 
   const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(", ") : ingredients;
   db.run(
-    `UPDATE recipes SET name = ?, readyInMinutes = ?, ingredients = ?, image = ?, instructions = ? WHERE id = ?`, // <-- changed & fixed typo
-    [name, readyInMinutes, ingredientsStr, image || "", instructions || "", id],                                    // <-- changed
+    `UPDATE recipes SET name = ?, readyInMinutes = ?, ingredients = ?, image = ?, instructions = ? WHERE id = ?`, 
+    [name, readyInMinutes, ingredientsStr, image || "", instructions || "", paramId],                                
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({
-        id: Number(id),
+        id: Number(paramId),
         name,
-        readyInMinutes,                                                        // <-- changed
+        readyInMinutes,                                                   
         ingredients: ingredientsStr.split(","),
         image: image || "",
         instructions: instructions || ""
@@ -145,6 +146,9 @@ app.put("/recipes/:id", (req, res) => {
     }
   );
 });
+
+
+
 
 
 
@@ -338,6 +342,24 @@ app.get("/camera-image", async (req, res) => {
     res.send(buffer);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/proxy-image", async (req, res) => {
+  try {
+    const imageUrl = req.query.url;
+    if (!imageUrl) return res.status(400).send("No URL provided");
+    
+    const response = await fetch(imageUrl);
+    if (!response.ok) throw new Error("Failed to fetch image");
+    
+    const contentType = response.headers.get("content-type");
+    res.set("Content-Type", contentType);
+    
+    response.body.pipe(res);
+  } catch (error) {
+    console.error("Error fetching image:", error);
+    res.status(500).send("Error fetching image");
   }
 });
 
