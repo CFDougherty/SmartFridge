@@ -38,7 +38,7 @@ const SettingsPage = () => {
             <h2>Connect to Mobile App</h2>
             <div className="qr-container">
               <QRCodeSVG 
-                value="http://10.15.1.233:3000/"  
+                value="http://pidisp:3000/"  
                 size={250}
                 bgColor="#ffffff" 
                 fgColor="#000000" 
