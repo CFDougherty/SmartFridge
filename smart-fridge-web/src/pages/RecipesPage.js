@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { RecipesContext } from "../context/RecipesContext";
 import { useSpring, animated } from "@react-spring/web";
@@ -172,7 +173,7 @@ const RecipesPage = () => {
         <div className="modal" onClick={closeRecipeDetails}>
           <animated.div ref={modalScrollRef} className="modal-content" {...modalBind()} onClick={e => e.stopPropagation()}>
             <h2>{selectedRecipe.name}</h2>
-            {selectedRecipe.image && <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.name} draggable="false"/>}
+            {selectedRecipe.image && <img className="recipe-image-large" src={selectedRecipe.image} alt={selectedRecipe.name} draggable="false" />}
             <p><strong>Ingredients:</strong></p>
             <ul>
               {Array.isArray(selectedRecipe.ingredients)

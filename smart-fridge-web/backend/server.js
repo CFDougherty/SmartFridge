@@ -363,28 +363,6 @@ app.get("/proxy-image", async (req, res) => {
   }
 });
 
-// OPTIONAL daily expiry update
-setInterval(() => {
-  console.log("Updating expiry tracking...");
-  db.all("SELECT * FROM fridge", [], (err, rows) => {
-    if (err) return console.error("Error fetching items:", err);
-    const today = new Date();
-    rows.forEach((item) => {
-      if (!item.expiry) return;
-      const expiryDate = new Date(item.expiry);
-      const timeDiff = expiryDate - today;
-      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-      db.run(
-        `UPDATE fridge SET expiry = ? WHERE id = ?`,
-        [daysLeft < 0 ? "Expired" : item.expiry, item.id],
-        (updateErr) => {
-          if (updateErr)
-            console.error("Error updating expiry status:", updateErr);
-        }
-      );
-    });
-  });
-}, 24 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
