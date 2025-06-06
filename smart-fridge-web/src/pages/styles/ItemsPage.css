@@ -174,3 +174,9 @@
     border-radius: 5px;
     font-size: 14px;
 }
+
+.expired-text {
+    color: red;
+    font-weight: bold;
+    margin-left: 4px;
+}
