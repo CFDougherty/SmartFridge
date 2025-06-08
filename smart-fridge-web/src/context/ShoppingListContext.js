@@ -28,6 +28,30 @@ export const ShoppingListProvider = ({ children }) => {
       });
   }, []);
 
+
+  const fetchShoppingListItems = async() =>{
+    try{
+      const response = await fetch('http://localhost:5001/shopping-list');
+      const data = await response.json();
+      setShoppingListItems(data);
+    }catch(error){
+          console.error('Error fetching shopping list:', error);
+    }
+  }
+
+  useEffect(() => {
+  fetchShoppingListItems();
+}, [fetchShoppingListItems]);
+
+
+
+
+
+
+
+
+
+
   const addItem = async (item) => {
     try {
       const res = await remoteHandler((base) =>
@@ -59,7 +83,7 @@ export const ShoppingListProvider = ({ children }) => {
 
   return (
     <ShoppingListContext.Provider
-      value={{ shoppingListItems, addItem, updateItem, removeItem }}
+      value={{ shoppingListItems, addItem, updateItem, removeItem, fetchShoppingListItems }}
     >
       {children}
     </ShoppingListContext.Provider>

@@ -1,4 +1,5 @@
 import React, { useState, useContext, useRef } from "react";
+import {  useEffect } from 'react';
 import { ShoppingListContext } from "../context/ShoppingListContext";
 import "./styles/ShoppingListPage.css";
 import backgroundImg from "../assets/background.jpg";
@@ -6,11 +7,15 @@ import { useSpring, animated } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
 
 const ShoppingListPage = () => {
-  const { shoppingListItems, addItem, updateItem, removeItem } = useContext(ShoppingListContext);
+  const { shoppingListItems, addItem, updateItem, removeItem, fetchShoppingListItems } = useContext(ShoppingListContext);
 
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ id: null, name: "", quantity: "" });
   const [autoAdd, setAutoAdd] = useState(false);
+  
+  useEffect(() => {fetchShoppingListItems()}, [fetchShoppingListItems]);
+
+
 
   const openModal = (item = null) => {
     setFormData(item ? item : { id: null, name: "", quantity: "" });
