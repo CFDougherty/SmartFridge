@@ -39,10 +39,6 @@ export const ShoppingListProvider = ({ children }) => {
     }
   }
 
-  useEffect(() => {
-  fetchShoppingListItems();
-}, [fetchShoppingListItems]);
-
 
 
 

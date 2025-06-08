@@ -52,9 +52,20 @@ export const AlertsProvider = ({ children }) => {
     } catch (_) {}
   };
 
+ const fetchAlerts = async () => { 
+    try {
+      const response = await fetch('http://localhost:5001/alerts');
+      const data = await response.json();
+      setAlerts(data);
+    } catch(error) {
+      console.error('Error fetching alerts:', error);
+    }
+  }
+
+
   return (
     <AlertsContext.Provider
-      value={{ alerts, addAlert, updateAlert, removeAlert }}
+      value={{ alerts, addAlert, updateAlert, removeAlert, fetchAlerts }}
     >
       {children}
     </AlertsContext.Provider>

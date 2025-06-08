@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import { AlertsContext } from "../context/AlertsContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -13,7 +13,7 @@ import 'react-calendar/dist/Calendar.css';
 
 
 const AlertsPage = () => {
-  const { alerts, addAlert, updateAlert, removeAlert } =
+  const { alerts, addAlert, updateAlert, removeAlert, fetchAlerts } =
     useContext(AlertsContext);
 
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -26,6 +26,8 @@ const AlertsPage = () => {
     time: "12:00",
     checked: false,
   });
+
+  useEffect(() => {fetchAlerts()}, [fetchAlerts]);
 
   const toggleChecked = (alert) => {
     updateAlert(alert.id, { ...alert, checked: !alert.checked });
