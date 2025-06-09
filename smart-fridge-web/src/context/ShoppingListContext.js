@@ -35,6 +35,7 @@ export const ShoppingListProvider = ({ children }) => {
       const res = await remoteHandler((base) =>
         axios.get(`${base}/shopping-list`)
       );
+      setShoppingListItems(res.data);
     } catch (error) {
       console.error("Error fetching shopping list:", error);
     }
