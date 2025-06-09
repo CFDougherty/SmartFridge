@@ -3,6 +3,8 @@ import "./styles/SettingsPage.css";
 import backgroundImg from "../assets/background.jpg";
 import {QRCodeSVG} from "qrcode.react";
 
+const HOSTNAME = process.env.REACT_APP_HOSTNAME;
+
 const SettingsPage = () => {
   const [showQRModal, setShowQRModal] = useState(false);
   const settingsOptions = [
@@ -38,7 +40,7 @@ const SettingsPage = () => {
             <h2>Connect to Mobile App</h2>
             <div className="qr-container">
               <QRCodeSVG 
-                value="http://pidisp:3000/"  
+                value={`${HOSTNAME}:3000/`}  
                 size={250}
                 bgColor="#ffffff" 
                 fgColor="#000000" 
