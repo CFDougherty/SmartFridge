@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { RecipesContext } from "../context/RecipesContext";
 import { useSpring, animated } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
 import "./styles/RecipesPage.css";
 import backgroundImg from "../assets/background.jpg";
+import editIcon from "../assets/edit.png";
+
 
 const RecipesPage = () => {
   const {
@@ -218,12 +219,26 @@ const RecipesPage = () => {
         <div className="recipes-section">
           {filteredRecipes.map(recipe => (
             <div key={recipe.id} className="recipe-card">
-              {recipe.image && <img src={recipe.image} alt={recipe.name} draggable="false"/>}
-              <h3>{recipe.name}</h3>
-              {recipe.readyInMinutes > 0 && <p>Ready in: {recipe.readyInMinutes} mins</p>}
-              <button onClick={() => showRecipeDetails(recipe)}>View</button>
-              <button onClick={() => handleEditClick(recipe)}>Edit</button>
-            </div>
+             {recipe.image && (
+               <img className="card-image" src={recipe.image} alt={recipe.name} draggable="false"/>
+             )}
+             <h3>{recipe.name}</h3>
+             {recipe.readyInMinutes > 0 && (
+               <p className="cook-time">Ready in: {recipe.readyInMinutes} mins</p>
+             )}
+             <div className="card-buttons">
+               <button
+                 className="view-button"
+                 onClick={() => showRecipeDetails(recipe)}>
+                 View
+               </button>
+               <button
+                 className="edit-button"
+                 onClick={() => handleEditClick(recipe)}>
+                 <img src={editIcon} alt="Edit" />
+               </button>
+             </div>
+           </div>
           ))}
         </div>
       </animated.div>
