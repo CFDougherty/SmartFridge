@@ -1,6 +1,9 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
+const HOSTNAME = process.env.REACT_APP_HOSTNAME;
+const DBPORT = process.env.REACT_APP_DBPORT;
+
 export const AlertsContext = createContext();
 
 export const AlertsProvider = ({ children }) => {
@@ -13,7 +16,7 @@ export const AlertsProvider = ({ children }) => {
     } catch (err1) {
       console.warn("Localhost failed, trying pidisp...");
       try {
-        return await request("http://pidisp:5001");
+        return await request(`${HOSTNAME}:${DBPORT}`);
       } catch (err2) {
         console.error("Failure in remote:", err2);
         throw err2;
@@ -29,7 +32,9 @@ export const AlertsProvider = ({ children }) => {
 
   const addAlert = async (alertData) => {
     try {
-      const res = await axios.post("http://localhost:5001/alerts", alertData);
+      const res = await remoteHandler((base) =>
+        axios.post(`${base}/alerts`, alertData)
+      );
       setAlerts((prev) => [...prev, res.data]);
     } catch (err) {
       console.error("Error adding alert:", err);
@@ -52,15 +57,16 @@ export const AlertsProvider = ({ children }) => {
     } catch (_) {}
   };
 
- const fetchAlerts = async () => { 
+  const fetchAlerts = async () => {
     try {
-      const response = await fetch('http://localhost:5001/alerts');
-      const data = await response.json();
-      setAlerts(data);
-    } catch(error) {
-      console.error('Error fetching alerts:', error);
+      const res = await remoteHandler((base) =>
+        axios.get(`${base}/alerts`)
+      );
+      setAlerts(res.data);
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
     }
-  }
+  };
 
 
   return (

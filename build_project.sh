@@ -55,6 +55,8 @@ wait
   echo "REACT_APP_OPENAI_API_KEY=$OPENAI_API_KEY"
   echo "REACT_APP_SPOONACULAR_API_KEY=$SPOONACULAR_API_KEY"
   echo "DANGEROUSLY_DISABLE_HOST_CHECK=true"
+  echo "REACT_APP_DBPORT=5001"
+  echo "REACT_APP_HOSTNAME=http://$(hostname)"
 } > ~/CS-Capstone/smart-fridge-web/.env
 
 cd ~/CS-Capstone/smart-fridge-web || exit

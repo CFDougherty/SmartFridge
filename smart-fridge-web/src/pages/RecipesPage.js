@@ -6,6 +6,9 @@ import "./styles/RecipesPage.css";
 import backgroundImg from "../assets/background.jpg";
 import editIcon from "../assets/edit.png";
 
+const HOSTNAME = process.env.REACT_APP_HOSTNAME;
+const DBPORT = process.env.REACT_APP_DBPORT;
+
 
 const RecipesPage = () => {
   const {
@@ -50,7 +53,7 @@ const RecipesPage = () => {
     } catch (err1) {
       console.warn("Localhost failed, trying pidisp...");
       try {
-        return await request("http://pidisp:5001");
+        return await request(`${HOSTNAME}:${DBPORT}`);
       } catch (err2) {
         console.error("Failure in remote", err2);
         throw err2;
