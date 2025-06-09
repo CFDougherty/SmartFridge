@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useState, useEffect } from "react"
 import { ShoppingListContext } from "../context/ShoppingListContext"
 import { AlertsContext } from "../context/AlertsContext"
 import { RecipesContext } from "../context/RecipesContext"
@@ -23,6 +23,24 @@ const HomePage = () => {
   const day     = today.getDate()
   const formattedDate = `${weekday}, ${month}. ${day}`
 
+  const [now, setNow] = useState(new Date())
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000 * 60 * 60)
+    return () => clearInterval(timer)
+  }, [])
+
+  const daysUntil = expiryDateStr => {
+    if (!expiryDateStr) return null
+    const exp   = new Date(expiryDateStr)
+    const todayZero = new Date(now)
+
+    exp.setHours(0,0,0,0)
+    todayZero.setHours(0,0,0,0)
+
+    const diffMs = exp.getTime() - todayZero.getTime()
+    return Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+  }
+
   return (
     <div className="home-container" style={{ backgroundImage: `url(${backgroundImg})` }}>
       <h1 className="home-header">{formattedDate}</h1>
@@ -30,12 +48,22 @@ const HomePage = () => {
         <div className="card" onClick={() => navigate("/items")}>
           <h2>Items in Fridge</h2>
           <ul>
-            {items.map(item => (
-              <li key={item.id}>
-                {item.name} ({item.quantity}
-                {item.unit && ` ${item.unit}`}) - Exp: {item.expiry}
-              </li>
-            ))}
+            {items.map(item => {
+              const diff = daysUntil(item.expiry)
+              return (
+                <li key={item.id}>
+                  {item.name} ({item.quantity}
+                  {item.unit && ` ${item.unit}`})
+                  {" — "}
+                  {diff == null
+                    ? "No expiry set"
+                    : diff < 0
+                      ? <span className="expired-text">Expired</span>
+                      : <span>Expires in {diff} {diff === 1 ? "day" : "days"}</span>
+                  }
+                </li>
+              )
+            })}
           </ul>
         </div>
         <div className="card" onClick={() => navigate("/shopping-list")}>
