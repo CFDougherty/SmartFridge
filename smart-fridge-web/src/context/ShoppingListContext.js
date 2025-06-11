@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useCallback} from "react";
 import axios from "axios";
 
 const HOSTNAME = process.env.REACT_APP_HOSTNAME;
@@ -30,7 +30,7 @@ export const ShoppingListProvider = ({ children }) => {
       .catch(() => {});
   }, []);
 
-  const fetchShoppingListItems = async () => {
+  const fetchShoppingListItems = useCallback(async () => {
     try {
       const res = await remoteHandler((base) =>
         axios.get(`${base}/shopping-list`)
@@ -39,7 +39,7 @@ export const ShoppingListProvider = ({ children }) => {
     } catch (error) {
       console.error("Error fetching shopping list:", error);
     }
-  };
+  }, []);
 
   const addItem = async (item) => {
     try {
