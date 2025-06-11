@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
 const HOSTNAME = process.env.REACT_APP_HOSTNAME;
@@ -57,7 +57,7 @@ export const AlertsProvider = ({ children }) => {
     } catch (_) {}
   };
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     try {
       const res = await remoteHandler((base) =>
         axios.get(`${base}/alerts`)
@@ -66,7 +66,7 @@ export const AlertsProvider = ({ children }) => {
     } catch (error) {
       console.error("Error fetching alerts:", error);
     }
-  };
+  }, []);
 
 
   return (
