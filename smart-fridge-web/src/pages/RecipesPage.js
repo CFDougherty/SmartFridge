@@ -238,7 +238,7 @@ const RecipesPage = () => {
                <button
                  className="edit-button"
                  onClick={() => handleEditClick(recipe)}>
-                 <img src={editIcon} alt="Edit" />
+                 <img src={editIcon} alt="Edit" draggable="false"/>
                </button>
              </div>
            </div>
