@@ -115,7 +115,7 @@ https://www.figma.com/proto/wWFdGDr48QXB2gG65yrl4t/Fridge-Display-Wireframe?node
 - Spoonacular API key (free tier is enough)
 - Tailscale installed on both Pi computers and mobile device(s) (optional for local use, required for remote access away from LAN)
 
-* Note that a Pi can be substituted to any computer running linux, so long as the appropriate libraries are installed. May need some reconfiguration to suit specific HW environments
+\* Note that a Pi can be substituted to any computer running linux, so long as the appropriate libraries are installed. May need some reconfiguration to suit specific HW environments
 
 # Installation Steps
 1. Clone the repo into your home directory on both Pi computer
