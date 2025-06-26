@@ -112,21 +112,20 @@ https://www.figma.com/proto/wWFdGDr48QXB2gG65yrl4t/Fridge-Display-Wireframe?node
 - Display
 - Python Libraries: SQLite3
 - OpenAI 4o API key & tokens
+- Spoonacular API key (free tier is enough)
 
-# Installation steps
+# Installation Steps
+1. Clone the repo into your home directory
+2. Make sure you have Node.js and npm installed
+3. Run our setup script to install both server and client side dependencies, initialize the SQLite database, and copy over and populate the example env file
+
+Setup Script:
 $ Download and run build_project.sh in ~/
-$ Ensure that ~/credentials.env are present
+$ Ensure that ~/credentials.env is present
 
 
 ## Configuration
-Explain how users can configure your project. If applicable, include details about
-configuration files.
-Example Configuration:
-#Configuration file example
-key: value
-Usage
-Provide examples and instructions on how users can use your project. Include code
-snippets or command-line examples.
+All runtime configurations should be in a credentials.env file. For reference, we have included a credentials.env.sample in the repository that tells you what you need in the .env file.
 
 
 ## License
