@@ -107,21 +107,25 @@ https://www.figma.com/proto/wWFdGDr48QXB2gG65yrl4t/Fridge-Display-Wireframe?node
 ## Installation
 
 **Prerequisites:**
-- Raspberry Pi with PiOS
-- Camera
+- Raspberry Pi with PiOS and external display w/ touch capability installed to run UI and orchestrator *
+- Second Raspberry Pi with PiCam installed *
 - Display
 - Python Libraries: SQLite3
 - OpenAI 4o API key & tokens
 - Spoonacular API key (free tier is enough)
+- Tailscale installed on both Pi computers and mobile device(s) (optional for local use, required for remote access away from LAN)
+
+* Note that a Pi can be substituted to any computer running linux, so long as the appropriate libraries are installed. May need some reconfiguration to suit specific HW environments
 
 # Installation Steps
-1. Clone the repo into your home directory
-2. Make sure you have Node.js and npm installed
-3. Run our setup script to install both server and client side dependencies, initialize the SQLite database, and copy over and populate the example env file
+1. Clone the repo into your home directory on both Pi computer
+2. On the pi-camera unit, install python and run 'python3 picamserver.py' or run as a system service on startup
+3. On the display / orchestrator unit, ensure that Node.js and npm installed
+4. Run our setup script to install both server and client side dependencies, initialize the SQLite database, and copy over and populate the example env file
 
 Setup Script:
 $ Download and run build_project.sh in ~/
-$ Ensure that ~/credentials.env is present
+$ Ensure that ~/credentials.env is present 
 
 
 ## Configuration
